@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | FuelExpress</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #00c9ff;
+            --secondary: #0a2463;
+            --accent: #ff3e00;
+            --dark: #0a0e17;
+            --light: #f8f9fa;
+            --gradient: linear-gradient(135deg, #00c9ff 0%, #0a2463 100%);
+            --gradient-reverse: linear-gradient(135deg, #0a2463 0%, #00c9ff 100%);
+            --shadow: 0 10px 30px rgba(0, 201, 255, 0.2);
+            --glow: 0 0 20px rgba(0, 201, 255, 0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 36, 99, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 201, 255, 0.3);
+            padding: 1.2rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-right: 10px;
+            text-shadow: var(--glow);
+        }
+        
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo-text span {
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+        
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-login {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-login:hover {
+            background: rgba(0, 201, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 201, 255, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .btn-signup {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 201, 255, 0.4);
+        }
+        
+        .btn-signup:hover {
+            background: var(--gradient-reverse);
+            box-shadow: 0 8px 20px rgba(0, 201, 255, 0.6);
+            transform: translateY(-3px);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* Signup Container */
+        .signup-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 2rem 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .signup-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+            z-index: -2;
+        }
+        
+        .signup-bg:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.95) 0%, rgba(10, 36, 99, 0.9) 100%);
+        }
+        
+        .signup-box {
+            background: rgba(26, 34, 56, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 550px;
+            border: 1px solid rgba(0, 201, 255, 0.2);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .signup-box:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 201, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .signup-box:hover:before {
+            left: 100%;
+        }
+        
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .signup-title {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #00c9ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .signup-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 201, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 201, 255, 0.1);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .strength-bar {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 3px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-check input {
+            margin-top: 5px;
+            margin-right: 10px;
+            accent-color: var(--primary);
+        }
+        
+        .form-check label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+        
+        .form-check a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .form-check a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-submit:hover {
+            background: var(--gradient-reverse);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 201, 255, 0.4);
+        }
+        
+        .signup-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .signup-divider:before, .signup-divider:after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .signup-divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .social-signup {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-social {
+            flex: 1;
+            padding: 0.9rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-social:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .btn-social i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .btn-google i {
+            color: #ea4335;
+        }
+        
+        .btn-facebook i {
+            color: #3b5998;
+        }
+        
+        .signup-footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+        
+        .signup-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .signup-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 2rem 2rem;
+            background: rgba(10, 14, 23, 0.98);
+            border-top: 1px solid rgba(0, 201, 255, 0.2);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* Animation for form */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .signup-box {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .signup-box {
+                padding: 2rem;
+            }
+            
+            .signup-title {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .social-signup {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .signup-box {
+                padding: 1.5rem;
+            }
+            
+            .signup-title {
+                font-size: 1.8rem;
+            }
+            
+            .navbar-container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a th:href="@{/}" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="logo-text">FUEL<span>EXPRESS</span></div>
+            </a>
+            
+            <!-- Navigation Links -->
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/services}">Services</a></li>
+                <li><a th:href="@{/pricing}">Pricing</a></li>
+                <li><a th:href="@{/about}">About</a></li>
+                <li><a th:href="@{/contact}">Contact</a></li>
+            </ul>
+            
+            <!-- Authentication Buttons -->
+            <div class="auth-buttons">
+                <a th:href="@{/login}" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a th:href="@{/signup}" class="btn btn-signup" style="background: rgba(0, 201, 255, 0.1);">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Container -->
+    <div class="signup-container">
+        <div class="signup-bg"></div>
+        <div class="signup-box">
+            <div class="signup-header">
+                <h2 class="signup-title">JOIN FUEL EXPRESS</h2>
+                <p class="signup-subtitle">Create your account and start ordering fuel in minutes</p>
+            </div>
+            
+            <!-- Signup Form -->
+            <form th:action="@{/signup}" method="post" id="signupForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="firstName">First Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Enter your first name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="lastName">Last Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Enter your last name" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone input-icon"></i>
+                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="address">Delivery Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt input-icon"></i>
+                        <input type="text" id="address" name="address" class="form-control" placeholder="Enter your primary delivery address" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Create a strong password" required>
+                    </div>
+                    <div class="password-strength">
+                        <span id="strengthText">Password strength: </span>
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                    </div>
+                    <small id="passwordMatch" style="display: none; color: #ffcccb; font-size: 0.85rem; margin-top: 5px;"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="vehicleType">Primary Vehicle Type</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-car input-icon"></i>
+                        <select id="vehicleType" name="vehicleType" class="form-control" required>
+                            <option value="">Select your vehicle type</option>
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="truck">Truck</option>
+                            <option value="motorcycle">Motorcycle</option>
+                            <option value="van">Van</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        I agree to the <a th:href="@{/terms}">Terms of Service</a> and <a th:href="@{/privacy}">Privacy Policy</a>. I consent to receive communications about my account and fuel delivery services.
+                    </label>
+                </div>
+                
+                <div class="form-check">
+                    <input type="checkbox" id="promotions" name="promotions">
+                    <label for="promotions">
+                        I would like to receive promotions, discounts, and updates about FuelExpress services.
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-user-plus"></i> CREATE ACCOUNT
+                </button>
+            </form>
+            
+            <div class="signup-divider">
+                <span>OR SIGN UP WITH</span>
+            </div>
+            
+            <div class="social-signup">
+                <a href="#" class="btn-social btn-google">
+                    <i class="fab fa-google"></i> Google
+                </a>
+                <a href="#" class="btn-social btn-facebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+            </div>
+            
+            <div class="signup-footer">
+                Already have an account?
+                <a th:href="@{/login}">Sign in here</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        &copy; 2023 FuelExpress. All rights reserved. | <a th:href="@{/privacy}" style="color: var(--primary); text-decoration: none;">Privacy Policy</a> | <a th:href="@{/terms}" style="color: var(--primary); text-decoration: none;">Terms of Service</a>
+    </footer>
+    
+    <script>
+        // Form validation
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // Check required fields
+            if (!firstName || !lastName || !email || !phone || !address || !password || !confirmPassword || !vehicleType) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return false;
+            }
+            
+            // Check terms agreement
+            if (!terms) {
+                e.preventDefault();
+                alert('You must agree to the Terms of Service and Privacy Policy.');
+                return false;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return false;
+            }
+            
+            // Phone validation (simple)
+            const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+            if (!phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''))) {
+                e.preventDefault();
+                alert('Please enter a valid phone number.');
+                return false;
+            }
+            
+            // Password validation
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long.');
+                return false;
+            }
+            
+            // Password match validation
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match.');
+                return false;
+            }
+            
+            // If all validations pass
+            alert('Account created successfully! Redirecting to your dashboard...');
+            return true;
+        });
+        
+        // Password strength checker
+        const passwordInput = document.getElementById('password');
+        const strengthText = document.getElementById('strengthText');
+        const strengthFill = document.getElementById('strengthFill');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let color = '#ff3e00'; // Red
+            
+            // Check password length
+            if (password.length >= 8) strength += 25;
+            
+            // Check for lowercase letters
+            if (/[a-z]/.test(password)) strength += 25;
+            
+            // Check for uppercase letters
+            if (/[A-Z]/.test(password)) strength += 25;
+            
+            // Check for numbers and special characters
+            if (/[0-9]/.test(password)) strength += 12.5;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 12.5;
+            
+            // Update strength bar
+            strengthFill.style.width = strength + '%';
+            
+            // Update color and text based on strength
+            if (strength < 50) {
+                color = '#ff3e00'; // Red
+                strengthText.textContent = 'Password strength: Weak';
+            } else if (strength < 75) {
+                color = '#ffa500'; // Orange
+                strengthText.textContent = 'Password strength: Fair';
+            } else {
+                color = '#00c9ff'; // Blue
+                strengthText.textContent = 'Password strength: Strong';
+            }
+            
+            strengthFill.style.backgroundColor = color;
+        });
+        
+        // Password confirmation checker
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordMatchText = document.getElementById('passwordMatch');
+        
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword === '') {
+                passwordMatchText.style.display = 'none';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                passwordMatchText.textContent = '✓ Passwords match';
+                passwordMatchText.style.color = '#90ee90';
+                passwordMatchText.style.display = 'block';
+            } else {
+                passwordMatchText.textContent = '✗ Passwords do not match';
+                passwordMatchText.style.color = '#ffcccb';
+                passwordMatchText.style.display = 'block';
+            }
+        });
+        
+        // Show/hide password functionality
+        function setupPasswordToggle(inputId) {
+            const input = document.getElementById(inputId);
+            const togglePassword = document.createElement('span');
+            togglePassword.innerHTML = '<i class="fas fa-eye"></i>';
+            togglePassword.style.position = 'absolute';
+            togglePassword.style.right = '1rem';
+            togglePassword.style.top = '50%';
+            togglePassword.style.transform = 'translateY(-50%)';
+            togglePassword.style.cursor = 'pointer';
+            togglePassword.style.color = 'var(--primary)';
+            
+            if (input) {
+                input.parentNode.style.position = 'relative';
+                input.parentNode.appendChild(togglePassword);
+                
+                togglePassword.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
+        }
+        
+        setupPasswordToggle('password');
+        setupPasswordToggle('confirmPassword');
+        
+        // Add floating particles effect
+        function createParticles() {
+            const container = document.querySelector('.signup-container');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = 'rgba(0, 201, 255, 0.5)';
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.zIndex = '-1';
+                container.appendChild(particle);
+                
+                // Animate particle
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            let x = parseFloat(particle.style.left);
+            let y = parseFloat(particle.style.top);
+            let xSpeed = (Math.random() - 0.5) * 0.3;
+            let ySpeed = (Math.random() - 0.5) * 0.3;
+            
+            function move() {
+                x += xSpeed;
+                y += ySpeed;
+                
+                if (x < 0 || x > 100) xSpeed *= -1;
+                if (y < 0 || y > 100) ySpeed *= -1;
+                
+                particle.style.left = x + 'vw';
+                particle.style.top = y + 'vh';
+                
+                requestAnimationFrame(move);
+            }
+            
+            move();
+        }
+        
+        window.addEventListener('load', createParticles);
+    </script>
+</body>
+</html>

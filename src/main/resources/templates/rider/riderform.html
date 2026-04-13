@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FuelFlow Pro - Premium Delivery Partner Registration</title>
+	<!-- Bootstrap CSS -->
+
+
+	<style>
+		/* Modern CSS Reset */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+		}
+
+		:root {
+			--primary: #4F46E5;
+			--primary-dark: #3730A3;
+			--primary-light: #818CF8;
+			--secondary: #10B981;
+			--accent: #F59E0B;
+			--danger: #EF4444;
+			--warning: #FBBF24;
+			--light: #F8FAFC;
+			--dark: #1E293B;
+			--gray: #64748B;
+			--light-gray: #F1F5F9;
+			--border-radius: 16px;
+			--border-radius-sm: 8px;
+			--shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+			--shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+			--shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+			--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			--gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+			--gradient-accent: linear-gradient(135deg, var(--secondary) 0%, #059669 100%);
+		}
+
+		body {
+			background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+			color: var(--dark);
+			line-height: 1.6;
+			min-height: 100vh;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background:
+				radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 20%),
+				radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 20%),
+				radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.03) 0%, transparent 30%);
+			z-index: -1;
+		}
+
+		/* Glassmorphism Effect */
+		.glass {
+			background: rgba(255, 255, 255, 0.85);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: var(--shadow);
+		}
+
+		/* Custom Scrollbar */
+		::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: var(--light-gray);
+			border-radius: 4px;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--primary-light);
+			border-radius: 4px;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: var(--primary);
+		}
+
+		/* Header Styles */
+		.main-header {
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			position: sticky;
+			top: 0;
+			z-index: 1000;
+			border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+		}
+
+		.header-container {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 0 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			height: 80px;
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			text-decoration: none;
+			color: var(--dark);
+			transition: var(--transition);
+		}
+
+		.logo:hover {
+			transform: translateY(-2px);
+		}
+
+		.logo-icon {
+			width: 40px;
+			height: 40px;
+			background: var(--gradient-primary);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+			box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+		}
+
+		.logo-text {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.logo-text h1 {
+			font-size: 24px;
+			font-weight: 800;
+			background: var(--gradient-primary);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			letter-spacing: -0.5px;
+		}
+
+		.logo-text span {
+			font-size: 12px;
+			color: var(--gray);
+			font-weight: 500;
+			letter-spacing: 0.5px;
+		}
+
+		.nav-links {
+			display: flex;
+			gap: 32px;
+			align-items: center;
+		}
+
+		.nav-link {
+			text-decoration: none;
+			color: var(--dark);
+			font-weight: 500;
+			font-size: 14px;
+			transition: var(--transition);
+			position: relative;
+			padding: 8px 0;
+			opacity: 0.9;
+		}
+
+		.nav-link:hover {
+			opacity: 1;
+			color: var(--primary);
+		}
+
+		.nav-link.active {
+			color: var(--primary);
+			font-weight: 600;
+		}
+
+		.nav-link.active::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 3px;
+			background: var(--gradient-primary);
+			border-radius: 2px;
+		}
+
+		.btn-login {
+			background: var(--gradient-primary);
+			color: white;
+			padding: 12px 28px;
+			border-radius: var(--border-radius-sm);
+			font-weight: 600;
+			border: none;
+			cursor: pointer;
+			transition: var(--transition);
+			font-size: 14px;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			letter-spacing: 0.5px;
+			box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.btn-login::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			transition: 0.5s;
+		}
+
+		.btn-login:hover::before {
+			left: 100%;
+		}
+
+		.btn-login:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+		}
+
+		/* Hero Section */
+		.hero-section {
+			position: relative;
+			padding: 100px 0;
+			overflow: hidden;
+		}
+
+		.hero-container {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 0 24px;
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 80px;
+			align-items: center;
+			position: relative;
+			z-index: 1;
+		}
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			background: var(--gradient-accent);
+			color: white;
+			padding: 12px 28px;
+			border-radius: 50px;
+			font-weight: 600;
+			margin-bottom: 24px;
+			box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+			font-size: 14px;
+			letter-spacing: 0.5px;
+			animation: float 3s ease-in-out infinite;
+		}
+
+		@keyframes float {
+
+			0%,
+			100% {
+				transform: translateY(0);
+			}
+
+			50% {
+				transform: translateY(-10px);
+			}
+		}
+
+		.hero-content h1 {
+			font-size: 56px;
+			font-weight: 800;
+			line-height: 1.1;
+			margin-bottom: 24px;
+			background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			letter-spacing: -1px;
+		}
+
+		.hero-content h1 span {
+			background: var(--gradient-primary);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		.hero-content p {
+			font-size: 18px;
+			color: var(--gray);
+			margin-bottom: 32px;
+			line-height: 1.7;
+			max-width: 540px;
+		}
+
+		.hero-stats {
+			display: flex;
+			gap: 48px;
+			margin-top: 48px;
+			padding-top: 32px;
+			border-top: 2px solid rgba(226, 232, 240, 0.5);
+		}
+
+		.stat-item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+			flex: 1;
+		}
+
+		.stat-value {
+			font-size: 40px;
+			font-weight: 800;
+			background: var(--gradient-primary);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			line-height: 1;
+			margin-bottom: 8px;
+		}
+
+		.stat-label {
+			font-size: 14px;
+			color: var(--gray);
+			font-weight: 500;
+			letter-spacing: 0.5px;
+		}
+
+		.hero-image {
+			position: relative;
+			text-align: center;
+		}
+
+		.hero-image::before {
+			content: '';
+			position: absolute;
+			width: 400px;
+			height: 400px;
+			background: var(--gradient-primary);
+			opacity: 0.1;
+			border-radius: 50%;
+			filter: blur(80px);
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		.hero-image svg {
+			width: 100%;
+			max-width: 500px;
+			filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
+			transform: perspective(1000px) rotateY(-10deg);
+			transition: var(--transition);
+		}
+
+		.hero-image svg:hover {
+			transform: perspective(1000px) rotateY(0deg);
+		}
+
+		/* Floating Elements */
+		.floating-element {
+			position: absolute;
+			background: white;
+			border-radius: 20px;
+			padding: 16px;
+			box-shadow: var(--shadow-lg);
+			z-index: 0;
+			animation: float 6s ease-in-out infinite;
+			opacity: 0.9;
+		}
+
+		.floating-element:nth-child(1) {
+			top: 20%;
+			left: 5%;
+			width: 60px;
+			height: 60px;
+			animation-delay: 0s;
+		}
+
+		.floating-element:nth-child(2) {
+			top: 60%;
+			right: 10%;
+			width: 80px;
+			height: 80px;
+			animation-delay: 2s;
+		}
+
+		.floating-element:nth-child(3) {
+			bottom: 20%;
+			left: 15%;
+			width: 40px;
+			height: 40px;
+			animation-delay: 4s;
+		}
+
+		/* Main Content */
+		.main-container {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 80px 24px;
+		}
+
+		/* Page Header */
+		.page-header {
+			text-align: center;
+			margin-bottom: 64px;
+			position: relative;
+		}
+
+		.page-title h2 {
+			font-size: 48px;
+			font-weight: 800;
+			margin-bottom: 16px;
+			position: relative;
+			display: inline-block;
+		}
+
+		.page-title h2::after {
+			content: '';
+			position: absolute;
+			bottom: -8px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 80px;
+			height: 4px;
+			background: var(--gradient-primary);
+			border-radius: 2px;
+		}
+
+		.page-subtitle {
+			font-size: 18px;
+			color: var(--gray);
+			max-width: 700px;
+			margin: 0 auto;
+			line-height: 1.6;
+		}
+
+		/* Modern Form Stepper */
+		.form-stepper {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 60px;
+			position: relative;
+			counter-reset: step;
+		}
+
+		.form-stepper::before {
+			content: '';
+			position: absolute;
+			top: 20px;
+			left: 0;
+			right: 0;
+			height: 2px;
+			background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--light-gray) 100%);
+			z-index: 1;
+		}
+
+		.stepper-step {
+			position: relative;
+			z-index: 2;
+			text-align: center;
+			flex: 1;
+		}
+
+		.stepper-circle {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: white;
+			border: 2px solid var(--light-gray);
+			color: var(--gray);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 12px;
+			font-weight: 700;
+			font-size: 14px;
+			transition: var(--transition);
+			position: relative;
+		}
+
+		.stepper-circle::before {
+			counter-increment: step;
+			content: counter(step);
+		}
+
+		.stepper-step.active .stepper-circle,
+		.stepper-step.completed .stepper-circle {
+			background: var(--gradient-primary);
+			border-color: var(--primary);
+			color: white;
+			transform: scale(1.1);
+			box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.1);
+		}
+
+		.stepper-step.completed .stepper-circle::before {
+			content: '✓';
+			font-size: 18px;
+		}
+
+		.stepper-label {
+			font-size: 14px;
+			color: var(--gray);
+			font-weight: 500;
+			transition: var(--transition);
+			position: relative;
+			padding-top: 8px;
+		}
+
+		.stepper-step.active .stepper-label,
+		.stepper-step.completed .stepper-label {
+			color: var(--primary);
+			font-weight: 600;
+		}
+
+		/* Registration Form Section */
+		.registration-section {
+			background: white;
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow-xl);
+			padding: 60px;
+			margin-bottom: 80px;
+			position: relative;
+			overflow: hidden;
+			border: 1px solid rgba(226, 232, 240, 0.5);
+		}
+
+		.registration-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 6px;
+			background: var(--gradient-primary);
+		}
+
+		.section-header {
+			margin-bottom: 40px;
+			padding-bottom: 24px;
+			border-bottom: 2px solid var(--light-gray);
+			position: relative;
+		}
+
+		.section-title {
+			font-size: 32px;
+			color: var(--dark);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			font-weight: 700;
+		}
+
+		.section-title i {
+			width: 48px;
+			height: 48px;
+			background: var(--gradient-primary);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+		}
+
+		/* Form Styles */
+		.form-container {
+			position: relative;
+		}
+
+		.form-section {
+			padding: 24px 0;
+		}
+
+		.form-group {
+			margin-bottom: 32px;
+			position: relative;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 12px;
+			font-weight: 600;
+			color: var(--dark);
+			font-size: 15px;
+			letter-spacing: 0.3px;
+		}
+
+		.required::after {
+			content: " *";
+			color: var(--danger);
+		}
+
+		input,
+		select,
+		textarea {
+			width: 100%;
+			padding: 18px 20px;
+			border: 2px solid var(--light-gray);
+			border-radius: var(--border-radius-sm);
+			font-size: 16px;
+			transition: var(--transition);
+			background: white;
+			color: var(--dark);
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			border-color: var(--primary);
+			outline: none;
+			box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+			background: white;
+		}
+
+		input:hover,
+		select:hover,
+		textarea:hover {
+			border-color: var(--primary-light);
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 32px;
+		}
+
+		.button-group {
+			display: flex;
+			gap: 24px;
+			margin-top: 48px;
+			padding-top: 40px;
+			border-top: 1px solid var(--light-gray);
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 18px 40px;
+			border: none;
+			border-radius: var(--border-radius-sm);
+			font-size: 16px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: var(--transition);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			min-width: 180px;
+			text-decoration: none;
+			position: relative;
+			overflow: hidden;
+			letter-spacing: 0.5px;
+		}
+
+		.btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			transition: 0.5s;
+		}
+
+		.btn:hover::before {
+			left: 100%;
+		}
+
+		.btn-submit {
+			background: var(--gradient-primary);
+			color: white;
+			flex: 2;
+			box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+		}
+
+		.btn-submit:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
+		}
+
+		.btn-reset {
+			background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+			color: var(--dark);
+			flex: 1;
+		}
+
+		.btn-reset:hover {
+			background: linear-gradient(135deg, #E2E8F0 0%, #CBD5E1 100%);
+			transform: translateY(-3px);
+			box-shadow: var(--shadow);
+		}
+
+		.btn-back {
+			background: white;
+			color: var(--dark);
+			border: 2px solid var(--light-gray);
+			flex: 1;
+		}
+
+		.btn-back:hover {
+			border-color: var(--primary);
+			transform: translateY(-3px);
+			box-shadow: var(--shadow);
+		}
+
+		/* Success Message */
+		.success-message {
+			display: none;
+			background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+			color: #065F46;
+			padding: 40px;
+			border-radius: var(--border-radius);
+			margin-top: 40px;
+			text-align: center;
+			border: 2px solid #10B981;
+			box-shadow: var(--shadow-lg);
+			animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		@keyframes slideUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* Thymeleaf Validation */
+		.field-error {
+			color: var(--danger);
+			font-size: 14px;
+			margin-top: 8px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			animation: shake 0.5s cubic-bezier(.36, .07, .19, .97);
+		}
+
+		@keyframes shake {
+
+			10%,
+			90% {
+				transform: translateX(-1px);
+			}
+
+			20%,
+			80% {
+				transform: translateX(2px);
+			}
+
+			30%,
+			50%,
+			70% {
+				transform: translateX(-2px);
+			}
+
+			40%,
+			60% {
+				transform: translateX(2px);
+			}
+		}
+
+		.error {
+			border-color: var(--danger) !important;
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+		}
+
+		/* Avatar Upload Modern */
+		.avatar-upload {
+			display: flex;
+			align-items: center;
+			gap: 32px;
+			margin-bottom: 32px;
+		}
+
+		.avatar-preview {
+			width: 120px;
+			height: 120px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			border: 4px solid white;
+			box-shadow: var(--shadow);
+			position: relative;
+		}
+
+		.avatar-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.avatar-preview::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: 50%;
+			padding: 2px;
+			background: var(--gradient-primary);
+			-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+			-webkit-mask-composite: xor;
+			mask-composite: exclude;
+		}
+
+		.avatar-upload-btn {
+			flex: 1;
+			border: 2px dashed var(--primary-light);
+			padding: 32px;
+			border-radius: var(--border-radius);
+			cursor: pointer;
+			text-align: center;
+			transition: var(--transition);
+			background: rgba(79, 70, 229, 0.02);
+		}
+
+		.avatar-upload-btn:hover {
+			border-color: var(--primary);
+			background: rgba(79, 70, 229, 0.05);
+			transform: translateY(-2px);
+		}
+
+		/* Form Tips */
+		.form-tip {
+			background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+			padding: 16px;
+			border-radius: var(--border-radius-sm);
+			margin-top: 8px;
+			font-size: 14px;
+			color: #92400E;
+			border-left: 4px solid var(--accent);
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		/* Benefits Panel */
+		.benefits-panel {
+			background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(129, 140, 248, 0.05) 100%);
+			padding: 40px;
+			border-radius: var(--border-radius);
+			border: 2px solid rgba(79, 70, 229, 0.1);
+			margin-top: 48px;
+			backdrop-filter: blur(10px);
+		}
+
+		.benefits-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 24px;
+		}
+
+		.benefit-card {
+			background: white;
+			padding: 24px;
+			border-radius: var(--border-radius-sm);
+			box-shadow: var(--shadow);
+			transition: var(--transition);
+			border: 1px solid rgba(226, 232, 240, 0.5);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.benefit-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: var(--gradient-primary);
+		}
+
+		.benefit-card:hover {
+			transform: translateY(-8px);
+			box-shadow: var(--shadow-lg);
+		}
+
+		.benefit-card i {
+			width: 48px;
+			height: 48px;
+			background: var(--gradient-primary);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+			margin-bottom: 20px;
+		}
+
+		/* Requirements Panel */
+		.requirements-panel {
+			background: white;
+			padding: 40px;
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow);
+			margin-top: 48px;
+			border: 2px solid var(--light-gray);
+		}
+
+		.requirement-item {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			margin-bottom: 20px;
+			padding: 20px;
+			background: var(--light-gray);
+			border-radius: var(--border-radius-sm);
+			border: 2px solid transparent;
+			transition: var(--transition);
+		}
+
+		.requirement-item:hover {
+			border-color: var(--primary);
+			background: white;
+			transform: translateX(8px);
+		}
+
+		.requirement-item i {
+			width: 32px;
+			height: 32px;
+			background: var(--gradient-accent);
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 14px;
+		}
+
+		/* CTA Section */
+		.cta-section {
+			background: var(--gradient-primary);
+			color: white;
+			padding: 100px 0;
+			text-align: center;
+			margin-top: 80px;
+			border-radius: var(--border-radius);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.cta-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400"><path d="M0,200 Q300,100 600,200 T1200,200" fill="rgba(255,255,255,0.1)" /></svg>') no-repeat center;
+			background-size: cover;
+			opacity: 0.3;
+		}
+
+		.cta-content {
+			position: relative;
+			z-index: 1;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.cta-content h2 {
+			font-size: 48px;
+			margin-bottom: 24px;
+			font-weight: 800;
+		}
+
+		.cta-content p {
+			font-size: 20px;
+			margin-bottom: 40px;
+			opacity: 0.9;
+			line-height: 1.6;
+		}
+
+		.cta-buttons {
+			display: flex;
+			gap: 24px;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+
+		.cta-btn {
+			padding: 20px 40px;
+			border-radius: var(--border-radius-sm);
+			font-weight: 600;
+			font-size: 16px;
+			text-decoration: none;
+			transition: var(--transition);
+			display: inline-flex;
+			align-items: center;
+			gap: 12px;
+			position: relative;
+			overflow: hidden;
+			letter-spacing: 0.5px;
+		}
+
+		.cta-btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			transition: 0.5s;
+		}
+
+		.cta-btn:hover::before {
+			left: 100%;
+		}
+
+		.cta-primary {
+			background: white;
+			color: var(--primary);
+			box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
+		}
+
+		.cta-primary:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 16px 40px rgba(255, 255, 255, 0.3);
+		}
+
+		.cta-secondary {
+			background: rgba(255, 255, 255, 0.15);
+			color: white;
+			border: 2px solid rgba(255, 255, 255, 0.3);
+			backdrop-filter: blur(10px);
+		}
+
+		.cta-secondary:hover {
+			background: rgba(255, 255, 255, 0.25);
+			transform: translateY(-4px);
+		}
+
+		/* Footer */
+		.main-footer {
+			background: var(--dark);
+			color: white;
+			padding: 80px 0 40px;
+			margin-top: 80px;
+		}
+
+		.footer-container {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 0 24px;
+		}
+
+		.footer-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 48px;
+			margin-bottom: 60px;
+		}
+
+		.footer-column h3 {
+			font-size: 18px;
+			font-weight: 700;
+			margin-bottom: 24px;
+			color: white;
+			position: relative;
+			padding-bottom: 12px;
+		}
+
+		.footer-column h3::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 40px;
+			height: 3px;
+			background: var(--gradient-primary);
+			border-radius: 2px;
+		}
+
+		.footer-column ul {
+			list-style: none;
+		}
+
+		.footer-column li {
+			margin-bottom: 12px;
+		}
+
+		.footer-column a {
+			color: #94A3B8;
+			text-decoration: none;
+			transition: var(--transition);
+			font-size: 14px;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.footer-column a:hover {
+			color: white;
+			transform: translateX(4px);
+		}
+
+		.footer-bottom {
+			border-top: 1px solid rgba(148, 163, 184, 0.2);
+			padding-top: 40px;
+			text-align: center;
+			color: #94A3B8;
+			font-size: 14px;
+		}
+
+		.social-links {
+			display: flex;
+			gap: 16px;
+			margin-top: 24px;
+		}
+
+		.social-link {
+			width: 44px;
+			height: 44px;
+			background: rgba(148, 163, 184, 0.1);
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			text-decoration: none;
+			transition: var(--transition);
+		}
+
+		.social-link:hover {
+			background: var(--primary);
+			transform: translateY(-4px);
+		}
+
+		/* Responsive */
+		@media (max-width: 1024px) {
+			.hero-container {
+				grid-template-columns: 1fr;
+				gap: 64px;
+			}
+
+			.hero-content h1 {
+				font-size: 48px;
+			}
+
+			.section-title {
+				font-size: 28px;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.nav-links {
+				display: none;
+			}
+
+			.mobile-menu-btn {
+				display: block;
+			}
+
+			.registration-section {
+				padding: 40px 24px;
+			}
+
+			.form-row {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+
+			.button-group {
+				flex-direction: column;
+			}
+
+			.btn {
+				width: 100%;
+				min-width: auto;
+			}
+
+			.avatar-upload {
+				flex-direction: column;
+				text-align: center;
+			}
+
+			.hero-stats {
+				flex-direction: column;
+				gap: 32px;
+			}
+
+			.cta-buttons {
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.cta-btn {
+				width: 100%;
+				max-width: 300px;
+				justify-content: center;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.hero-content h1 {
+				font-size: 36px;
+			}
+
+			.page-title h2 {
+				font-size: 36px;
+			}
+
+			.section-title {
+				font-size: 24px;
+			}
+		}
+
+		/* Mobile Menu */
+		.mobile-menu-btn {
+			display: none;
+			background: var(--gradient-primary);
+			border: none;
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			color: white;
+			cursor: pointer;
+			transition: var(--transition);
+		}
+
+		.mobile-menu-btn:hover {
+			transform: rotate(90deg);
+		}
+
+		/* Loading Animation */
+		.loader {
+			display: none;
+			width: 48px;
+			height: 48px;
+			border: 4px solid var(--light-gray);
+			border-top: 4px solid var(--primary);
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+			margin: 0 auto;
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* Progress Bar */
+		.progress-bar {
+			height: 4px;
+			background: var(--light-gray);
+			border-radius: 2px;
+			overflow: hidden;
+			margin-bottom: 32px;
+		}
+
+		.progress-fill {
+			height: 100%;
+			background: var(--gradient-primary);
+			border-radius: 2px;
+			transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		/* Password Field Styles */
+		.password-container {
+			position: relative;
+		}
+
+		.toggle-password {
+			position: absolute;
+			right: 15px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			color: var(--gray);
+			cursor: pointer;
+			font-size: 16px;
+			padding: 8px;
+			transition: var(--transition);
+		}
+
+		.toggle-password:hover {
+			color: var(--primary);
+		}
+
+		.password-strength {
+			margin-top: 10px;
+		}
+
+		.strength-meter {
+			height: 6px;
+			background: var(--light-gray);
+			border-radius: 3px;
+			overflow: hidden;
+			margin-bottom: 4px;
+		}
+
+		.strength-bar {
+			height: 100%;
+			width: 0;
+			border-radius: 3px;
+			transition: var(--transition);
+		}
+
+		.strength-weak {
+			background: var(--danger);
+			width: 25%;
+		}
+
+		.strength-medium {
+			background: var(--warning);
+			width: 50%;
+		}
+
+		.strength-strong {
+			background: var(--secondary);
+			width: 75%;
+		}
+
+		.strength-very-strong {
+			background: var(--accent);
+			width: 100%;
+		}
+
+		.strength-label {
+			font-size: 12px;
+			color: var(--gray);
+			font-weight: 500;
+		}
+	</style>
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<!-- Inter Font -->
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+</head>
+
+<body>
+	<!-- Floating Elements -->
+	<div class="floating-element">
+		<i class="fas fa-gas-pump" style="font-size: 24px; color: var(--primary);"></i>
+	</div>
+	<div class="floating-element">
+		<i class="fas fa-motorcycle" style="font-size: 32px; color: var(--secondary);"></i>
+	</div>
+	<div class="floating-element">
+		<i class="fas fa-bolt" style="font-size: 20px; color: var(--accent);"></i>
+	</div>
+
+	<!-- Header -->
+	<header class="main-header">
+		<div class="header-container">
+			<a href="#" class="logo">
+				<div class="logo-icon">
+					<i class="fas fa-bolt"></i>
+				</div>
+				<div class="logo-text">
+					<h1>FuelExpress</h1>
+					<span>Premium Delivery Network</span>
+				</div>
+			</a>
+
+			<nav class="nav-links">
+				<a href="#" class="nav-link active">Home</a>
+				<a href="#" class="nav-link">Earnings</a>
+				<a href="#" class="nav-link">How It Works</a>
+				<a href="#" class="nav-link">Requirements</a>
+				<a href="#" class="nav-link">Support</a>
+				<a href="/riderlogin" class="btn-login">
+					<i class="fas fa-sign-in-alt"></i> Login
+				</a>
+			</nav>
+
+			<button class="mobile-menu-btn" id="mobileMenuBtn">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
+
+	<!-- Hero Section -->
+	<section class="hero-section">
+		<div class="hero-container">
+			<div class="hero-content">
+				<div class="hero-badge">
+					<i class="fas fa-crown"></i> Premium Partner Program
+				</div>
+				<h1>Drive Your Future with <span>FuelFlow Pro</span></h1>
+				<p>Join India's elite fuel delivery network. Premium earnings, advanced safety features, and a support
+					system designed for your success. Be part of the future of on-demand fuel delivery.</p>
+
+				<div class="hero-stats">
+					<div class="stat-item">
+						<div class="stat-value">35K+</div>
+						<div class="stat-label">Premium Partners</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-value">₹65L+</div>
+						<div class="stat-label">Paid Monthly</div>
+					</div>
+					<div class="stat-item">
+						<div class="stat-value">4.9★</div>
+						<div class="stat-label">Partner Rating</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="hero-image">
+				<svg viewBox="0 0 500 500">
+					<defs>
+						<linearGradient id="bikeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+							<stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+							<stop offset="100%" style="stop-color:#3730A3;stop-opacity:1" />
+						</linearGradient>
+						<linearGradient id="tankGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+							<stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+							<stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+						</linearGradient>
+					</defs>
+					<circle cx="250" cy="250" r="200" fill="url(#bikeGradient)" opacity="0.1" />
+					<path d="M150,300 L350,300 L350,350 L150,350 Z" fill="url(#tankGradient)" opacity="0.8" />
+					<circle cx="200" cy="400" r="40" fill="#1E293B" />
+					<circle cx="300" cy="400" r="40" fill="#1E293B" />
+					<path d="M180,200 L200,250 L300,250 L320,200 Z" fill="url(#bikeGradient)" />
+					<path d="M200,250 L220,300 L280,300 L300,250 Z" fill="#64748B" />
+				</svg>
+			</div>
+		</div>
+	</section>
+
+	<!-- Main Content -->
+	<div class="main-container">
+		<!-- Page Header -->
+		<div class="page-header">
+			<div class="page-title">
+				<h2>Join Our Premium Network</h2>
+				<p class="page-subtitle">Complete this application to become a FuelFlow Pro delivery partner. Experience
+					premium benefits and elite earning potential.</p>
+			</div>
+		</div>
+
+		<!-- Progress Bar -->
+		<div class="progress-bar">
+			<div class="progress-fill" id="progressFill" style="width: 33%"></div>
+		</div>
+
+		<!-- Form Stepper -->
+		<div class="form-stepper">
+			<div class="stepper-step active">
+				<div class="stepper-circle"></div>
+				<div class="stepper-label">Personal Details</div>
+			</div>
+			<div class="stepper-step">
+				<div class="stepper-circle"></div>
+				<div class="stepper-label">Vehicle Info</div>
+			</div>
+			<div class="stepper-step">
+				<div class="stepper-circle"></div>
+				<div class="stepper-label">Verification</div>
+			</div>
+		</div>
+
+		<!-- Registration Form Section -->
+		<div class="registration-section">
+			<div class="section-header">
+				<h3 class="section-title">
+					<i class="fas fa-user-tie"></i> Premium Partner Application
+				</h3>
+			</div>
+
+			<div class="form-container">
+				<!-- Registration Form -->
+				<div class="form-section">
+					<form th:action="@{/register}" th:object="${rider}" method="post">
+
+						<div class="section-header" style="margin-top: 0; padding-top: 0;">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-id-card"></i> Identity Verification
+							</h4>
+						</div>
+
+						<div class="avatar-upload">
+							<div class="avatar-preview" id="avatarPreview">
+								<i class="fas fa-user-tie" style="font-size: 48px; color: var(--primary);"></i>
+							</div>
+							<div class="avatar-upload-btn" id="uploadAvatar">
+								<i class="fas fa-cloud-upload-alt"
+									style="font-size: 24px; margin-bottom: 12px; color: var(--primary);"></i>
+								<div style="font-weight: 600; margin-bottom: 4px;">Upload Premium Profile</div>
+								<div style="font-size: 13px; color: var(--gray);">High-quality photo, max 5MB, JPG/PNG
+								</div>
+							</div>
+							<input type="file" id="profileImage" name="profileImage" accept="image/png, image/jpeg"
+								hidden>
+						</div>
+
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="fullName" class="required">Full Name</label>
+								<input type="text" id="fullName" th:field="*{fullName}"
+									placeholder="Enter your full name as per ID" required>
+								<div class="validation-error" th:if="${#fields.hasErrors('fullName')}"
+									th:errors="*{fullName}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="dateOfBirth" class="required">Date of Birth</label>
+								<input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" max="2005-01-01" required>
+								<div class="form-tip">
+									<i class="fas fa-lightbulb"></i>
+									<span>Must be 18 years or older with valid ID proof</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('dateOfBirth')}"
+									th:errors="*{dateOfBirth}"></div>
+							</div>
+						</div>
+
+						<!-- Contact Information -->
+						<div class="section-header">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-address-book"></i> Contact Information
+							</h4>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="contactNumber" class="required">Mobile Number</label>
+								<input type="tel" id="contactNumber" th:field="*{contactNumber}"
+									placeholder="+91 98765 43210" required>
+								<div class="validation-error" th:if="${#fields.hasErrors('contactNumber')}"
+									th:errors="*{contactNumber}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="email" class="required">Email Address</label>
+								<input type="email" id="email" th:field="*{email}" placeholder="partner@example.com"
+									required>
+								<div class="validation-error" th:if="${#fields.hasErrors('email')}"
+									th:errors="*{email}"></div>
+							</div>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="emergencyContact" class="required">Emergency Contact</label>
+								<input type="tel" id="emergencyContact" th:field="*{emergencyContact}"
+									placeholder="+91 98765 43210" required>
+								<div class="form-tip">
+									<i class="fas fa-shield-alt"></i>
+									<span>Family member or trusted contact for emergencies</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('emergencyContact')}"
+									th:errors="*{emergencyContact}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="gender" class="required">Gender</label>
+								<select id="gender" th:field="*{gender}" required>
+									<option value="">Select Gender</option>
+									<option value="Male">Male</option>
+									<option value="Female">Female</option>
+									<option value="Other">Other</option>
+									<option value="Prefer not to say">Prefer not to say</option>
+								</select>
+								<div class="validation-error" th:if="${#fields.hasErrors('gender')}"
+									th:errors="*{gender}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="password" class="required">Password</label>
+								<div class="password-container">
+									<input type="password" id="password" th:field="*{password}"
+										placeholder="Create a strong password" required>
+									<button type="button" class="toggle-password" id="togglePassword">
+										<i class="fas fa-eye"></i>
+									</button>
+								</div>
+								<div class="password-strength">
+									<div class="strength-meter">
+										<div class="strength-bar" id="strengthBar"></div>
+									</div>
+									<div class="strength-label" id="strengthLabel">Password strength</div>
+								</div>
+								<div class="form-tip">
+									<i class="fas fa-lightbulb"></i>
+									<span>Minimum 8 characters with uppercase, lowercase, number & special
+										character</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('password')}"
+									th:errors="*{password}"></div>
+							</div>
+						</div>
+
+						<!-- Address Information -->
+						<div class="section-header">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-map-marker-alt"></i> Address Details
+							</h4>
+						</div>
+
+						<div class="form-group">
+							<label for="address" class="required">Complete Address</label>
+							<textarea id="address" th:field="*{address}" rows="3"
+								placeholder="Enter your complete residential address with landmarks"
+								required></textarea>
+							<div class="validation-error" th:if="${#fields.hasErrors('address')}"
+								th:errors="*{address}"></div>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="city" class="required">City</label>
+								<input type="text" id="city" th:field="*{city}" placeholder="Enter your city" required>
+								<div class="validation-error" th:if="${#fields.hasErrors('city')}" th:errors="*{city}">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="state" class="required">State</label>
+								<select id="state" th:field="*{state}" required>
+									<option value="">Select State</option>
+									<option th:each="stateOpt : ${states}" th:value="${stateOpt}" th:text="${stateOpt}">
+									</option>
+								</select>
+								<div class="validation-error" th:if="${#fields.hasErrors('state')}"
+									th:errors="*{state}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="pincode" class="required">PIN Code</label>
+								<input type="text" id="pincode" th:field="*{pincode}" placeholder="6-digit PIN code"
+									required>
+								<div class="validation-error" th:if="${#fields.hasErrors('pincode')}"
+									th:errors="*{pincode}"></div>
+							</div>
+						</div>
+
+						<!-- Vehicle Details -->
+						<div class="section-header">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-motorcycle"></i> Vehicle Specifications
+							</h4>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="vehicleType" class="required">Vehicle Type</label>
+								<select id="vehicleType" th:field="*{vehicleType}" required>
+									<option value="">Select Vehicle Type</option>
+									<option value="Premium Motorcycle">Premium Motorcycle</option>
+									<option value="Electric Scooter">Electric Scooter</option>
+									<option value="Advanced Bicycle">Advanced Bicycle</option>
+									<option value="Electric Bike">Electric Bike</option>
+									<option value="Premium Car">Premium Car (4-wheeler)</option>
+								</select>
+								<div class="validation-error" th:if="${#fields.hasErrors('vehicleType')}"
+									th:errors="*{vehicleType}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="vehicleBrand" class="required">Vehicle Brand</label>
+								<input type="text" id="vehicleBrand" th:field="*{vehicleBrand}"
+									placeholder="e.g., Royal Enfield, TVS, etc." required>
+								<div class="validation-error" th:if="${#fields.hasErrors('vehicleBrand')}"
+									th:errors="*{vehicleBrand}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="vehicleModel" class="required">Vehicle Model</label>
+								<input type="text" id="vehicleModel" th:field="*{vehicleModel}"
+									placeholder="e.g., Classic 350, Jupiter, etc." required>
+								<div class="validation-error" th:if="${#fields.hasErrors('vehicleModel')}"
+									th:errors="*{vehicleModel}"></div>
+							</div>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="vehicleYear" class="required">Manufacturing Year</label>
+								<input type="number" id="vehicleYear" th:field="*{vehicleYear}" min="2018" max="2024"
+									placeholder="e.g., 2022" required>
+								<div class="form-tip">
+									<i class="fas fa-calendar-check"></i>
+									<span>Vehicle must be less than 6 years old for premium service</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('vehicleYear')}"
+									th:errors="*{vehicleYear}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="vehicleNumber" class="required">Registration Number</label>
+								<input type="text" id="vehicleNumber" th:field="*{vehicleNumber}"
+									placeholder="e.g., MH01AB1234" required>
+								<div class="validation-error" th:if="${#fields.hasErrors('vehicleNumber')}"
+									th:errors="*{vehicleNumber}"></div>
+							</div>
+						</div>
+
+						<!-- License Information -->
+						<div class="section-header">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-id-badge"></i> License Details
+							</h4>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="licenseNumber" class="required">Driving License Number</label>
+								<input type="text" id="licenseNumber" th:field="*{licenseNumber}"
+									placeholder="Enter license number" required>
+								<div class="form-tip">
+									<i class="fas fa-badge-check"></i>
+									<span>Will be verified through RTO database</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('licenseNumber')}"
+									th:errors="*{licenseNumber}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="licenseExpiry" class="required">License Expiry Date</label>
+								<input type="date" id="licenseExpiry" th:field="*{licenseExpiry}" min="2023-12-01"
+									required>
+								<div class="form-tip">
+									<i class="fas fa-clock"></i>
+									<span>Must be valid for at least 12 months</span>
+								</div>
+								<div class="validation-error" th:if="${#fields.hasErrors('licenseExpiry')}"
+									th:errors="*{licenseExpiry}"></div>
+							</div>
+						</div>
+
+						<!-- Service Preferences -->
+						<div class="section-header">
+							<h4 class="section-title" style="font-size: 18px;">
+								<i class="fas fa-briefcase"></i> Service Preferences
+							</h4>
+						</div>
+
+						<div class="form-row">
+							<div class="form-group">
+								<label for="serviceType" class="required">Service Commitment</label>
+								<select id="serviceType" th:field="*{serviceType}" required>
+									<option value="">Select Commitment Level</option>
+									<option value="Elite">Elite Partner (Full-time)</option>
+									<option value="Premium">Premium Partner (Part-time)</option>
+									<option value="Flex">Flex Partner (On-demand)</option>
+								</select>
+								<div class="validation-error" th:if="${#fields.hasErrors('serviceType')}"
+									th:errors="*{serviceType}"></div>
+							</div>
+
+							<div class="form-group">
+								<label for="availability" class="required">Preferred Schedule</label>
+								<select id="availability" th:field="*{availability}" required>
+									<option value="">Select Schedule</option>
+									<option value="Morning">Morning Peak (6 AM - 2 PM)</option>
+									<option value="Afternoon">Afternoon Shift (2 PM - 10 PM)</option>
+									<option value="Night">Night Premium (10 PM - 6 AM)</option>
+									<option value="Flexible">Dynamic (Any shift)</option>
+								</select>
+								<div class="validation-error" th:if="${#fields.hasErrors('availability')}"
+									th:errors="*{availability}"></div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="areasCovered">Coverage Areas</label>
+							<textarea id="areasCovered" th:field="*{areasCovered}" rows="2"
+								placeholder="Enter localities you can service (comma-separated)"></textarea>
+							<div class="form-tip">
+								<i class="fas fa-map-pin"></i>
+								<span>Specify areas for optimal delivery routing</span>
+							</div>
+						</div>
+
+						<!-- Terms and Conditions -->
+						<div class="form-group">
+							<div
+								style="display: flex; align-items: flex-start; gap: 12px; margin-top: 32px; padding: 20px; background: var(--light-gray); border-radius: var(--border-radius-sm);">
+								<input type="checkbox" id="terms" required style="width: auto; margin-top: 4px;">
+								<label for="terms" style="margin: 0; font-size: 14px;">
+									I agree to the <a href="#"
+										style="color: var(--primary); text-decoration: underline;">Terms of Service</a>,
+									<a href="#" style="color: var(--primary); text-decoration: underline;">Privacy
+										Policy</a>, and confirm that all information provided is accurate. I understand
+									that verification is required and may take 24-48 hours.
+								</label>
+							</div>
+						</div>
+
+						<!-- Loading Animation -->
+						<div class="loader" id="formLoader"></div>
+
+						<div class="button-group">
+							<button type="submit" class="btn btn-submit" id="submitBtn">
+								<i class="fas fa-rocket"></i> Launch Application
+							</button>
+							<button type="reset" class="btn btn-reset" id="resetBtn">
+								<i class="fas fa-eraser"></i> Clear Form
+							</button>
+							<a href="/" class="btn btn-back">
+								<i class="fas fa-home"></i> Dashboard
+							</a>
+						</div>
+
+						<!-- Success Message -->
+						<div class="success-message" id="successMessage" th:if="${registrationSuccess}">
+							<i class="fas fa-check-circle"
+								style="font-size: 48px; margin-bottom: 20px; color: #10B981;"></i>
+							<h3 style="margin-bottom: 16px; font-weight: 700;">Application Submitted Successfully!</h3>
+							<p style="margin-bottom: 24px;">Welcome to FuelFlow Pro! Your premium partner application
+								has been received and is being processed.</p>
+							<div
+								style="display: flex; gap: 20px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
+								<a href="/rider-login" class="btn"
+									style="background: var(--gradient-primary); color: white; min-width: 200px;">
+									<i class="fas fa-tachometer-alt"></i> Partner Dashboard
+								</a>
+								<button type="button" class="btn" onclick="downloadApplication()"
+									style="background: white; color: var(--primary); border: 2px solid var(--primary); min-width: 200px;">
+									<i class="fas fa-download"></i> Download Copy
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Benefits Panel -->
+			<div class="benefits-panel">
+				<h3 style="margin-bottom: 32px; display: flex; align-items: center; gap: 12px;">
+					<i class="fas fa-crown" style="color: var(--accent);"></i>
+					Premium Partner Benefits
+				</h3>
+				<div class="benefits-grid">
+					<div class="benefit-card">
+						<i class="fas fa-money-bill-wave"></i>
+						<h4 style="margin-bottom: 8px;">Premium Earnings</h4>
+						<p style="color: var(--gray); font-size: 14px;">Earn ₹40,000 - ₹75,000/month with elite partner
+							bonuses and incentives.</p>
+					</div>
+					<div class="benefit-card">
+						<i class="fas fa-shield-alt"></i>
+						<h4 style="margin-bottom: 8px;">Enhanced Safety</h4>
+						<p style="color: var(--gray); font-size: 14px;">Comprehensive insurance coverage and 24/7
+							emergency support system.</p>
+					</div>
+					<div class="benefit-card">
+						<i class="fas fa-chart-line"></i>
+						<h4 style="margin-bottom: 8px;">Growth Path</h4>
+						<p style="color: var(--gray); font-size: 14px;">Clear career progression with leadership
+							opportunities and training programs.</p>
+					</div>
+					<div class="benefit-card">
+						<i class="fas fa-gem"></i>
+						<h4 style="margin-bottom: 8px;">Elite Perks</h4>
+						<p style="color: var(--gray); font-size: 14px;">Fuel subsidies, vehicle maintenance, and
+							exclusive partner rewards.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- CTA Section -->
+		<div class="cta-section">
+			<div class="cta-content">
+				<h2>Ready for Elite Earning?</h2>
+				<p>Join India's most advanced fuel delivery network. Premium partners enjoy higher earnings, better
+					support, and exclusive benefits designed for success.</p>
+				<div class="cta-buttons">
+					<a href="#registration" class="cta-btn cta-primary">
+						<i class="fas fa-bolt"></i> Start Application
+					</a>
+					<a href="/rider-login" class="cta-btn cta-secondary">
+						<i class="fas fa-lock"></i> Partner Login
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Footer -->
+	<footer class="main-footer">
+		<div class="footer-container">
+			<div class="footer-grid">
+				<div class="footer-column">
+					<h3>FuelFlow Pro</h3>
+					<p style="color: #94A3B8; font-size: 14px; line-height: 1.6; margin-top: 16px;">
+						Redefining fuel delivery with premium service standards and elite partner opportunities.
+					</p>
+					<div class="social-links">
+						<a href="#" class="social-link">
+							<i class="fab fa-facebook-f"></i>
+						</a>
+						<a href="#" class="social-link">
+							<i class="fab fa-twitter"></i>
+						</a>
+						<a href="#" class="social-link">
+							<i class="fab fa-instagram"></i>
+						</a>
+						<a href="#" class="social-link">
+							<i class="fab fa-linkedin-in"></i>
+						</a>
+					</div>
+				</div>
+
+				<div class="footer-column">
+					<h3>For Partners</h3>
+					<ul>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Partner Dashboard</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Earnings Calculator</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Training Academy</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Safety Protocols</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Partner Support</a></li>
+					</ul>
+				</div>
+
+				<div class="footer-column">
+					<h3>Company</h3>
+					<ul>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> About Us</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Careers</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Press Center</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Blog</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+					</ul>
+				</div>
+
+				<div class="footer-column">
+					<h3>Legal</h3>
+					<ul>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Cookie Policy</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Partner Agreement</a></li>
+						<li><a href="#"><i class="fas fa-chevron-right"></i> Compliance</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="footer-bottom">
+				<p>© 2024 FuelFlow Pro. All rights reserved.</p>
+				<p style="margin-top: 8px; color: #64748B;">24/7 Partner Support: 1800-PRO-FUEL | Email:
+					elite@fuelflow.pro</p>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		/* =========================================================
+		   DOM READY
+		========================================================= */
+		document.addEventListener('DOMContentLoaded', () => {
+			initMobileMenu();
+			initAvatarUpload();
+			initPasswordFeatures();
+			initRealTimeValidation();
+			initSmoothScroll();
+		});
+
+		/* =========================================================
+		   MOBILE MENU
+		========================================================= */
+		function initMobileMenu() {
+			const btn = document.getElementById('mobileMenuBtn');
+			const nav = document.querySelector('.nav-links');
+
+			if (!btn || !nav) return;
+
+			btn.addEventListener('click', () => {
+				nav.classList.toggle('open');
+			});
+		}
+
+		/* =========================================================
+		   AVATAR / PROFILE IMAGE UPLOAD
+		========================================================= */
+		function initAvatarUpload() {
+			const uploadBtn = document.getElementById('uploadAvatar');
+			const fileInput = document.getElementById('profileImage');
+			const preview = document.querySelector('.avatar-preview');
+
+			if (!uploadBtn || !fileInput || !preview) return;
+
+			// Open file dialog
+			uploadBtn.addEventListener('click', () => {
+				fileInput.click();
+			});
+
+			// Handle file selection
+			fileInput.addEventListener('change', () => {
+				const file = fileInput.files[0];
+
+				if (!file) return;
+
+				// Validate file type
+				if (!file.type.startsWith('image/')) {
+					alert('Please upload a valid image file (JPG or PNG)');
+					fileInput.value = '';
+					return;
+				}
+
+				// Validate file size (5MB max)
+				if (file.size > 5 * 1024 * 1024) {
+					alert('Image must be less than 5MB');
+					fileInput.value = '';
+					return;
+				}
+
+				// Preview image
+				const reader = new FileReader();
+				reader.onload = () => {
+					preview.innerHTML = `<img src="${reader.result}" alt="Profile Image"
+                                  style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+				};
+				reader.readAsDataURL(file);
+			});
+		}
+
+		/* =========================================================
+		   PASSWORD VISIBILITY + STRENGTH
+		========================================================= */
+		function initPasswordFeatures() {
+			const pwd = document.getElementById('password');
+			const toggle = document.getElementById('togglePassword');
+
+			if (!pwd || !toggle) return;
+
+			// Show / hide password
+			toggle.addEventListener('click', () => {
+				const isHidden = pwd.type === 'password';
+				pwd.type = isHidden ? 'text' : 'password';
+				toggle.innerHTML = isHidden
+					? '<i class="fas fa-eye-slash"></i>'
+					: '<i class="fas fa-eye"></i>';
+			});
+
+			// Strength meter
+			pwd.addEventListener('input', () => {
+				checkPasswordStrength(pwd.value);
+			});
+		}
+
+		function checkPasswordStrength(password) {
+			const bar = document.getElementById('strengthBar');
+			const label = document.getElementById('strengthLabel');
+
+			if (!bar || !label) return;
+
+			let score = 0;
+			if (password.length >= 8) score++;
+			if (/[a-z]/.test(password)) score++;
+			if (/[A-Z]/.test(password)) score++;
+			if (/\d/.test(password)) score++;
+			if (/[@$!%*?&]/.test(password)) score++;
+
+			const levels = ['Weak', 'Medium', 'Strong', 'Very Strong'];
+
+			bar.className = 'strength-bar strength-' + Math.min(score, 4);
+			label.textContent = score === 0
+				? 'Password strength'
+				: 'Password strength: ' + levels[Math.min(score - 1, levels.length - 1)];
+		}
+
+		/* =========================================================
+		   REAL-TIME REQUIRED FIELD VALIDATION
+		========================================================= */
+		function initRealTimeValidation() {
+			const requiredFields = document.querySelectorAll('[required]');
+
+			requiredFields.forEach(field => {
+				field.addEventListener('blur', () => {
+					if (!field.value.trim()) {
+						showError(field, 'This field is required');
+					} else {
+						clearError(field);
+					}
+				});
+			});
+		}
+
+		function showError(field, message) {
+			field.classList.add('error');
+
+			let error = field.parentNode.querySelector('.field-error');
+			if (!error) {
+				error = document.createElement('div');
+				error.className = 'field-error';
+				field.parentNode.appendChild(error);
+			}
+			error.textContent = message;
+		}
+
+		function clearError(field) {
+			field.classList.remove('error');
+			const error = field.parentNode.querySelector('.field-error');
+			if (error) error.remove();
+		}
+
+		/* =========================================================
+		   SMOOTH SCROLL FOR ANCHOR LINKS
+		========================================================= */
+		function initSmoothScroll() {
+			document.querySelectorAll('a[href^="#"]').forEach(link => {
+				link.addEventListener('click', e => {
+					e.preventDefault();
+					const target = document.querySelector(link.getAttribute('href'));
+					if (target) {
+						target.scrollIntoView({behavior: 'smooth'});
+					}
+				});
+			});
+		}
+	</script>
+
+
+</body>
+
+</html>

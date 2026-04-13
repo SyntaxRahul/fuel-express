@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment - Fuel Express</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .payment-header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .payment-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .payment-header p {
+            opacity: 0.9;
+        }
+
+        .payment-content {
+            padding: 30px;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .order-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .total-amount {
+            background: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .total-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .total-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .payment-options {
+            margin-bottom: 30px;
+        }
+
+        .payment-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .payment-option.selected {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.05);
+        }
+
+        .payment-option-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .payment-option-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .payment-option-description {
+            color: #666;
+            font-size: 14px;
+            margin-left: 55px;
+        }
+
+        .payment-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .payment-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-pay {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-cancel {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .btn-cancel:hover {
+            background: #d5dbdb;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+
+        .success-message h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Error message */
+        .error-message {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+
+        .error-message h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .error-message p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 480px) {
+            .payment-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h1><i class="fas fa-lock"></i> Secure Payment</h1>
+            <p>Complete your fuel booking with secure payment</p>
+        </div>
+
+        <div class="payment-content">
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+                <div id="paymentSummary">
+                    <!-- Order summary will be populated by JavaScript -->
+                </div>
+                <div class="total-amount">
+                    <div class="total-label">Total Amount</div>
+                    <div class="total-value">₹0.00</div>
+                </div>
+            </div>
+
+            <!-- Payment Selection -->
+            <div class="payment-options">
+                <div class="payment-option selected" data-method="card">
+                    <div class="payment-option-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="payment-option-title">Credit/Debit Card</div>
+                    </div>
+                    <div class="payment-option-description">
+                        Pay securely with your Visa, MasterCard, or Rupay card
+                    </div>
+                </div>
+
+                <div class="payment-option" data-method="upi">
+                    <div class="payment-option-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="payment-option-title">UPI</div>
+                    </div>
+                    <div class="payment-option-description">
+                        Pay instantly using any UPI app like GPay, PhonePe, Paytm
+                    </div>
+                </div>
+
+                <div class="payment-option" data-method="netbanking">
+                    <div class="payment-option-header">
+                        <div class="payment-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="payment-option-title">Net Banking</div>
+                    </div>
+                    <div class="payment-option-description">
+                        Transfer directly from your bank account
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Payment Form -->
+            <div class="payment-form active" id="cardForm">
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="password" id="cvv" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardHolder">Card Holder Name</label>
+                        <input type="text" id="cardHolder" placeholder="John Doe" required>
+                    </div>
+                </form>
+            </div>
+
+            <!-- UPI Payment Form -->
+            <div class="payment-form" id="upiForm">
+                <form id="upiPaymentForm">
+                    <div class="form-group">
+                        <label for="upiId">UPI ID</label>
+                        <input type="text" id="upiId" placeholder="username@bank" required>
+                    </div>
+                    <div class="form-tip" style="font-size: 14px; color: #666; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i>
+                        You will be redirected to your UPI app for payment confirmation
+                    </div>
+                </form>
+            </div>
+
+            <!-- Net Banking Form -->
+            <div class="payment-form" id="netbankingForm">
+                <div class="form-group">
+                    <label for="bankSelect">Select Bank</label>
+                    <select id="bankSelect" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+                        <option value="">Select your bank</option>
+                        <option value="sbi">State Bank of India</option>
+                        <option value="hdfc">HDFC Bank</option>
+                        <option value="icici">ICICI Bank</option>
+                        <option value="axis">Axis Bank</option>
+                        <option value="kotak">Kotak Mahindra Bank</option>
+                        <option value="pnb">Punjab National Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Payment Actions -->
+            <button class="btn btn-pay" id="payNowBtn">
+                <i class="fas fa-lock"></i> Pay Now
+            </button>
+            <button class="btn btn-cancel" id="cancelPayment">
+                <i class="fas fa-times"></i> Cancel Payment
+            </button>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2>Payment Successful!</h2>
+                <p>Your fuel booking has been confirmed. You will receive delivery within your selected time slot.</p>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;" id="orderNumberDisplay"></p>
+                <button class="btn btn-pay" id="viewOrderBtn">
+                    <i class="fas fa-eye"></i> View Order Details
+                </button>
+                <button class="btn btn-cancel" id="backToDashboard">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </button>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2>Payment Failed!</h2>
+                <p id="errorDetail">There was an error processing your payment. Please try again.</p>
+                <button class="btn btn-cancel" id="retryPayment">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+                <button class="btn btn-cancel" id="backToDashboardFromError">
+                    <i class="fas fa-home"></i> Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get booking data from localStorage
+        const bookingData = JSON.parse(localStorage.getItem('bookingData'));
+
+        // Populate order summary
+        if (bookingData) {
+            document.getElementById('paymentSummary').innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">Petrol Pump:</span>
+                    <span class="summary-value">${bookingData.pumpName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Fuel Type:</span>
+                    <span class="summary-value">${bookingData.fuelType}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Quantity:</span>
+                    <span class="summary-value">${bookingData.quantity}L</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Delivery Time:</span>
+                    <span class="summary-value">${bookingData.deliveryTime}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Delivery Address:</span>
+                    <span class="summary-value">${bookingData.deliveryAddress}</span>
+                </div>
+            `;
+
+            document.querySelector('.total-value').textContent = `₹${bookingData.totalAmount}`;
+        } else {
+            // No booking data found
+            alert('No booking data found. Please start a new booking.');
+            window.location.href = '/dashboard';
+        }
+
+        // Payment method selection
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.payment-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+
+                const method = this.dataset.method;
+                
+                // Hide all forms
+                document.querySelectorAll('.payment-form').forEach(form => {
+                    form.classList.remove('active');
+                });
+
+                // Show selected form
+                document.getElementById(`${method}Form`).classList.add('active');
+            });
+        });
+
+        // Format card number
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formatted = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
+                }
+                formatted += value[i];
+            }
+            e.target.value = formatted.substring(0, 19);
+        });
+
+        // Format expiry date
+        document.getElementById('expiryDate').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value.substring(0, 5);
+        });
+
+        // Pay Now button - CALLS YOUR BACKEND ENDPOINT
+        document.getElementById('payNowBtn').addEventListener('click', async function() {
+            const selectedMethod = document.querySelector('.payment-option.selected').dataset.method;
+            
+            // Validate form based on selected method
+            let isValid = false;
+            
+            switch(selectedMethod) {
+                case 'card':
+                    isValid = validateCardForm();
+                    break;
+                case 'upi':
+                    isValid = validateUPIForm();
+                    break;
+                case 'netbanking':
+                    isValid = validateNetBankingForm();
+                    break;
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Show loading
+            const payBtn = this;
+            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            payBtn.disabled = true;
+
+            try {
+                // Prepare order data for backend
+                const orderData = prepareOrderData(selectedMethod);
+                
+                // Send POST request to your backend endpoint
+                const response = await fetch('/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.text();
+                
+                if (result === "Payment successful") {
+                    // Payment successful
+                    showSuccessMessage(orderData);
+                } else {
+                    // Payment failed
+                    showErrorMessage(result || "Payment failed. Please try again.");
+                }
+                
+            } catch (error) {
+                console.error('Payment error:', error);
+                showErrorMessage('Payment processing failed. Please try again.');
+            } finally {
+                // Reset button
+                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay Now';
+                payBtn.disabled = false;
+            }
+        });
+
+        function prepareOrderData(paymentMethod) {
+            // Calculate cost breakdown
+            const totalAmount = parseFloat(bookingData.totalAmount);
+            const quantity = parseFloat(bookingData.quantity);
+            
+            // Get fuel price based on type
+            let fuelPrice = 0;
+            switch(bookingData.fuelType) {
+                case 'Petrol': fuelPrice = 96.72; break;
+                case 'Diesel': fuelPrice = 89.62; break;
+                case 'CNG': fuelPrice = 78.50; break;
+                case 'Premium Petrol': fuelPrice = 105.30; break;
+                default: fuelPrice = 96.72;
+            }
+            
+            const baseCost = fuelPrice * quantity;
+            const deliveryCharge = quantity >= 10 ? 0 : 30;
+            const tax = baseCost * 0.18;
+            
+            return {
+                pumpId: bookingData.pumpId,
+                pumpName: bookingData.pumpName,
+                fuelType: bookingData.fuelType,
+                quantity: quantity,
+                vehicleNumber: bookingData.vehicleNumber,
+                deliveryTimeSlot: bookingData.deliveryTime,
+                deliveryAddress: bookingData.deliveryAddress,
+                paymentMethod: getBackendPaymentMethod(paymentMethod),
+                baseCost: baseCost,
+                deliveryCharge: deliveryCharge,
+                tax: tax,
+                totalAmount: totalAmount,
+                status: "PENDING", // Will be updated to CONFIRMED after payment
+                latitude: parseFloat(bookingData.userLat),
+                longitude: parseFloat(bookingData.userLng)
+                // customerId will be set by your backend from LoginUserBean
+            };
+        }
+
+        function getBackendPaymentMethod(frontendMethod) {
+            switch(frontendMethod) {
+                case 'card': return 'CARD';
+                case 'upi': return 'UPI';
+                case 'netbanking': return 'NET_BANKING';
+                default: return 'CASH_ON_DELIVERY';
+            }
+        }
+
+        function validateCardForm() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+            const cardHolder = document.getElementById('cardHolder').value;
+
+            if (cardNumber.length !== 16) {
+                alert('Please enter a valid 16-digit card number');
+                return false;
+            }
+
+            if (!expiryDate.match(/^\d{2}\/\d{2}$/)) {
+                alert('Please enter expiry date in MM/YY format');
+                return false;
+            }
+
+            if (cvv.length !== 3) {
+                alert('Please enter a valid 3-digit CVV');
+                return false;
+            }
+
+            if (cardHolder.trim().length < 3) {
+                alert('Please enter card holder name');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateUPIForm() {
+            const upiId = document.getElementById('upiId').value;
+            if (!upiId.match(/^[\w.-]+@[\w.-]+$/)) {
+                alert('Please enter a valid UPI ID');
+                return false;
+            }
+            return true;
+        }
+
+        function validateNetBankingForm() {
+            const bankSelect = document.getElementById('bankSelect').value;
+            if (!bankSelect) {
+                alert('Please select a bank');
+                return false;
+            }
+            return true;
+        }
+
+        function showSuccessMessage(orderData) {
+            // Generate order number
+            const orderNumber = 'FE-' + Date.now().toString().substring(5);
+            
+            // Update display
+            document.getElementById('orderNumberDisplay').textContent = `Order Number: ${orderNumber}`;
+            
+            // Show success message
+            document.getElementById('successMessage').classList.add('active');
+            document.querySelector('.payment-options').style.display = 'none';
+            document.querySelectorAll('.payment-form').forEach(form => form.style.display = 'none');
+            document.getElementById('payNowBtn').style.display = 'none';
+            document.getElementById('cancelPayment').style.display = 'none';
+
+            // Store successful booking in localStorage
+            const completedOrder = {
+                ...bookingData,
+                orderNumber: orderNumber,
+                status: 'CONFIRMED',
+                paymentStatus: 'PAID',
+                orderDate: new Date().toISOString(),
+                baseCost: orderData.baseCost,
+                deliveryCharge: orderData.deliveryCharge,
+                tax: orderData.tax
+            };
+            
+            localStorage.setItem('currentOrder', JSON.stringify(completedOrder));
+            
+            // Clear booking data from localStorage
+            localStorage.removeItem('bookingData');
+        }
+
+        function showErrorMessage(message) {
+            document.getElementById('errorDetail').textContent = message;
+            document.getElementById('errorMessage').classList.add('active');
+            document.querySelector('.payment-options').style.display = 'none';
+            document.querySelectorAll('.payment-form').forEach(form => form.style.display = 'none');
+            document.getElementById('payNowBtn').style.display = 'none';
+            document.getElementById('cancelPayment').style.display = 'none';
+        }
+
+        // Cancel payment
+        document.getElementById('cancelPayment').addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel the payment?')) {
+                // Clear booking data
+                localStorage.removeItem('bookingData');
+                window.location.href = '/dashboard';
+            }
+        });
+
+        // Retry payment
+        document.getElementById('retryPayment').addEventListener('click', function() {
+            document.getElementById('errorMessage').classList.remove('active');
+            document.querySelector('.payment-options').style.display = 'block';
+            document.getElementById('cardForm').style.display = 'block';
+            document.getElementById('payNowBtn').style.display = 'block';
+            document.getElementById('cancelPayment').style.display = 'block';
+        });
+
+        // View order details
+        document.getElementById('viewOrderBtn').addEventListener('click', function() {
+            window.location.href = '/csorders';
+        });
+
+        // Back to dashboard (from success)
+        document.getElementById('backToDashboard').addEventListener('click', function() {
+            window.location.href = '/dashboard';
+        });
+
+        // Back to dashboard (from error)
+        document.getElementById('backToDashboardFromError').addEventListener('click', function() {
+            localStorage.removeItem('bookingData');
+            window.location.href = '/dashboard';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Fuel Express – Register Pump (simplified, checkboxes)</title>
+	<!-- Leaflet CSS -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<!-- Leaflet JS -->
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<!-- Google Mutant (Google Maps layer) -->
+	<script src="https://unpkg.com/leaflet.gridlayer.googlemutant@latest/dist/Leaflet.GoogleMutant.js"></script>
+	<!-- Google Maps API with Places (two keys kept as original) -->
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCyIruC1n1datcCsvGT7syLkTOO8E_n5zA"></script>
+	<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJ2rGE7wclQIbbUnD55rGv0xUTzSCKy0k&libraries=places"></script>
+
+	<style>
+		/* ----- SIMPLIFIED, CLEAN DESIGN – only main content area restyled ----- */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+		}
+
+		:root {
+			--primary: #1e3c5c;
+			/* deep navy */
+			--secondary: #2b6c9e;
+			/* softer blue */
+			--accent: #2b8c5e;
+			/* muted green */
+			--light-bg: #f7f9fc;
+			--card-bg: #ffffff;
+			--border-light: #e2e8f0;
+			--text-dark: #1e293b;
+			--text-muted: #52637a;
+			--shadow-sm: 0 2px 6px rgba(0, 20, 40, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+			--shadow-md: 0 8px 20px rgba(0, 20, 40, 0.06);
+			--sidebar-width: 250px;
+			--topbar-height: 64px;
+		}
+
+		body {
+			background-color: #f0f3f7;
+			color: var(--text-dark);
+			line-height: 1.5;
+		}
+
+		/* ----- sidebar (unchanged structure, only visual refresh) ----- */
+		.sidebar {
+			width: var(--sidebar-width);
+			background-color: var(--primary);
+			color: white;
+			position: fixed;
+			height: 100vh;
+			padding-top: var(--topbar-height);
+			transition: transform 0.2s ease;
+			z-index: 100;
+			box-shadow: 2px 0 10px rgba(0, 0, 0, 0.08);
+			left: 0;
+			transform: translateX(0);
+		}
+
+		.sidebar.collapsed {
+			transform: translateX(-100%);
+		}
+
+		.sidebar-header {
+			padding: 20px;
+			border-bottom: 1px solid #34658b;
+		}
+
+		.sidebar-header h3 {
+			font-weight: 500;
+			font-size: 1.1rem;
+			color: #d0e2f2;
+		}
+
+		.sidebar-menu {
+			list-style: none;
+			padding: 16px 0;
+		}
+
+		.sidebar-menu li {
+			margin-bottom: 2px;
+		}
+
+		.sidebar-menu a {
+			display: flex;
+			align-items: center;
+			padding: 12px 20px;
+			color: #cbd8e8;
+			text-decoration: none;
+			transition: 0.2s;
+			border-left: 3px solid transparent;
+			font-weight: 450;
+		}
+
+		.sidebar-menu a:hover,
+		.sidebar-menu a.active {
+			background-color: #254f73;
+			color: white;
+			border-left-color: #8fc9ff;
+		}
+
+		.sidebar-menu i {
+			width: 28px;
+			font-size: 1rem;
+		}
+
+		.sidebar-footer {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			padding: 16px;
+			border-top: 1px solid #34658b;
+			font-size: 0.8rem;
+			color: #a0bada;
+		}
+
+		/* ----- topbar (clean, minimal) ----- */
+		.topbar {
+			height: var(--topbar-height);
+			background-color: white;
+			border-bottom: 1px solid var(--border-light);
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 101;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 24px;
+			box-shadow: var(--shadow-sm);
+		}
+
+		.toggle-sidebar {
+			background: none;
+			border: none;
+			font-size: 1.4rem;
+			color: var(--primary);
+			cursor: pointer;
+			padding: 8px;
+			border-radius: 6px;
+			display: none;
+		}
+
+		.toggle-sidebar:hover {
+			background-color: #ecf3fa;
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.logo h1 {
+			font-size: 1.6rem;
+			font-weight: 600;
+			color: var(--primary);
+			letter-spacing: -0.01em;
+		}
+
+		.logo-icon {
+			font-size: 1.8rem;
+			color: var(--secondary);
+		}
+
+		.user-info {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+		}
+
+		.user-avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 40px;
+			background: var(--secondary);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			cursor: pointer;
+			transition: 0.1s;
+		}
+
+		.notifications {
+			position: relative;
+			cursor: pointer;
+			color: #4b637a;
+		}
+
+		.notification-count {
+			position: absolute;
+			top: -6px;
+			right: -8px;
+			background: #d43f31;
+			color: white;
+			font-size: 0.7rem;
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+		}
+
+		.user-details {
+			font-weight: 500;
+			color: var(--primary);
+		}
+
+		/* ----- MAIN CONTENT – SIMPLIFIED & AIRY ----- */
+		.main-content {
+			flex: 1;
+			margin-left: var(--sidebar-width);
+			margin-top: var(--topbar-height);
+			padding: 32px 36px;
+			transition: margin-left 0.2s ease;
+			background-color: #f0f3f7;
+		}
+
+		.main-content.expanded {
+			margin-left: 0;
+		}
+
+		/* page header minimal */
+		.page-header {
+			margin-bottom: 28px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 12px;
+		}
+
+		.page-title h2 {
+			font-size: 2rem;
+			font-weight: 600;
+			color: var(--primary);
+			margin-bottom: 4px;
+			letter-spacing: -0.01em;
+		}
+
+		.page-subtitle {
+			color: var(--text-muted);
+			font-size: 1rem;
+		}
+
+		.breadcrumb {
+			background: white;
+			padding: 8px 16px;
+			border-radius: 40px;
+			font-size: 0.9rem;
+			box-shadow: var(--shadow-sm);
+			color: #5f6c80;
+		}
+
+		.breadcrumb a {
+			color: var(--secondary);
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		/* stepper – simplified to minimal text indicators */
+		.form-stepper {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 32px;
+			background: white;
+			padding: 16px 24px;
+			border-radius: 48px;
+			box-shadow: var(--shadow-sm);
+			width: fit-content;
+			border: 1px solid var(--border-light);
+		}
+
+		.stepper-step {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.stepper-circle {
+			width: 28px;
+			height: 28px;
+			border-radius: 28px;
+			background: #e2eaf2;
+			color: #2f405c;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			font-size: 0.9rem;
+		}
+
+		.stepper-step.active .stepper-circle {
+			background: var(--secondary);
+			color: white;
+		}
+
+		.stepper-label {
+			font-weight: 500;
+			color: #3b4e66;
+		}
+
+		.stepper-step:not(:last-child)::after {
+			content: "→";
+			margin: 0 12px;
+			color: #b1c3d4;
+			font-weight: 300;
+		}
+
+		/* main registration card – flat, clean, lots of whitespace */
+		.registration-section {
+			background-color: white;
+			border-radius: 24px;
+			box-shadow: var(--shadow-md);
+			padding: 36px 40px;
+			margin-bottom: 30px;
+			border: 1px solid var(--border-light);
+		}
+
+		.section-header {
+			margin-bottom: 24px;
+		}
+
+		.section-title {
+			font-size: 1.5rem;
+			font-weight: 550;
+			color: var(--primary);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.section-title i {
+			color: var(--secondary);
+			font-size: 1.6rem;
+		}
+
+		/* two-column layout */
+		.form-container {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 48px;
+		}
+
+		@media (max-width: 1000px) {
+			.form-container {
+				grid-template-columns: 1fr;
+				gap: 40px;
+			}
+		}
+
+		/* form elements – clean borders */
+		.form-group {
+			margin-bottom: 24px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 6px;
+			font-weight: 550;
+			color: #2e405b;
+			font-size: 0.95rem;
+		}
+
+		.required::after {
+			content: " *";
+			color: #d55c5c;
+			font-weight: 600;
+		}
+
+		input,
+		select,
+		textarea {
+			width: 100%;
+			padding: 12px 16px;
+			border: 1px solid var(--border-light);
+			border-radius: 14px;
+			font-size: 0.95rem;
+			transition: 0.15s;
+			background-color: #fcfdff;
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			border-color: var(--secondary);
+			outline: none;
+			box-shadow: 0 0 0 3px rgba(43, 108, 158, 0.15);
+			background-color: white;
+		}
+
+		select[multiple] {
+			height: 120px;
+			padding: 8px;
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+		}
+
+		@media (max-width: 600px) {
+			.form-row {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		/* checkbox group styling */
+		.checkbox-group {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 12px;
+			margin-top: 8px;
+		}
+
+		.checkbox-group label {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			background: #f5f8fc;
+			padding: 10px 14px;
+			border-radius: 30px;
+			border: 1px solid var(--border-light);
+			cursor: pointer;
+			font-weight: normal;
+			margin-bottom: 0;
+			transition: background 0.1s;
+		}
+
+		.checkbox-group label:hover {
+			background: #e3eaf2;
+		}
+
+		.checkbox-group input[type="checkbox"] {
+			width: 18px;
+			height: 18px;
+			accent-color: var(--secondary);
+			margin: 0;
+			flex-shrink: 0;
+		}
+
+		/* map box */
+		#map-container {
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: var(--shadow-sm);
+			height: 360px;
+			margin-bottom: 20px;
+			border: 1px solid var(--border-light);
+			position: relative;
+		}
+
+		#map {
+			height: 100%;
+			width: 100%;
+			background: #e2eaf2;
+		}
+
+		.map-instructions {
+			background-color: #f1f7fd;
+			padding: 16px;
+			border-radius: 16px;
+			margin: 20px 0 16px;
+			font-size: 0.9rem;
+			border-left: 4px solid var(--secondary);
+		}
+
+		.coordinates-display {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin: 16px 0;
+		}
+
+		.coordinate-box {
+			background: #f2f6fa;
+			padding: 16px;
+			border-radius: 18px;
+			text-align: center;
+			border: 1px solid var(--border-light);
+		}
+
+		.coordinate-label {
+			font-size: 0.8rem;
+			color: #4f658d;
+			margin-bottom: 4px;
+			font-weight: 600;
+		}
+
+		.coordinate-value {
+			font-size: 1.25rem;
+			font-weight: 600;
+			color: var(--primary);
+			font-family: 'JetBrains Mono', monospace;
+			background: white;
+			padding: 4px 8px;
+			border-radius: 12px;
+			display: inline-block;
+		}
+
+		/* buttons */
+		.button-group {
+			display: flex;
+			gap: 16px;
+			margin-top: 36px;
+			padding-top: 20px;
+			border-top: 1px solid var(--border-light);
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 14px 30px;
+			border: none;
+			border-radius: 40px;
+			font-size: 1rem;
+			font-weight: 550;
+			cursor: pointer;
+			transition: 0.1s ease;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			box-shadow: var(--shadow-sm);
+			border: 1px solid transparent;
+		}
+
+		.btn-submit {
+			background: var(--accent);
+			color: white;
+			flex: 2;
+			border-color: #1f6e4a;
+		}
+
+		.btn-submit:hover {
+			background: #227b4e;
+			transform: scale(1.02);
+		}
+
+		.btn-reset {
+			background: white;
+			color: #2d425e;
+			border-color: var(--border-light);
+			flex: 1;
+		}
+
+		.btn-reset:hover {
+			background: #f2f6fc;
+		}
+
+		.btn-back {
+			background: white;
+			color: #2d425e;
+			border-color: var(--border-light);
+			text-decoration: none;
+			padding: 14px 30px;
+			flex: 1;
+			text-align: center;
+		}
+
+		.btn-back:hover {
+			background: #f2f6fc;
+		}
+
+		/* form notices & tips */
+		.form-notice {
+			background: #fef9e7;
+			padding: 16px 20px;
+			border-radius: 18px;
+			margin: 24px 0 8px;
+			border-left: 4px solid #e6b12e;
+			font-size: 0.95rem;
+		}
+
+		.form-tip {
+			background: #ecf7fb;
+			padding: 8px 14px;
+			border-radius: 30px;
+			margin-top: 6px;
+			font-size: 0.85rem;
+			color: #21677e;
+			display: inline-block;
+		}
+
+		.field-error {
+			color: #c7423a;
+			font-size: 0.8rem;
+			margin-top: 4px;
+			display: none;
+			font-weight: 500;
+		}
+
+		.error {
+			border-color: #c7423a !important;
+		}
+
+		/* footer simple */
+		.footer {
+			text-align: center;
+			padding: 24px;
+			color: #68758b;
+			font-size: 0.9rem;
+			border-top: 1px solid var(--border-light);
+			background: white;
+			border-radius: 32px;
+			margin-top: 30px;
+			box-shadow: var(--shadow-sm);
+		}
+
+		/* mobile adjustments */
+		@media (max-width: 768px) {
+			.sidebar {
+				transform: translateX(-100%);
+			}
+
+			.sidebar.active {
+				transform: translateX(0);
+			}
+
+			.main-content {
+				margin-left: 0;
+				padding: 24px 20px;
+			}
+
+			.toggle-sidebar {
+				display: block;
+			}
+
+			.form-stepper {
+				width: 100%;
+				justify-content: space-between;
+			}
+
+			.stepper-step:not(:last-child)::after {
+				margin: 0 4px;
+			}
+
+			.button-group {
+				flex-direction: column;
+			}
+
+			.btn {
+				width: 100%;
+			}
+
+			.user-details {
+				display: none;
+			}
+
+			.checkbox-group {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.sidebar-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.2);
+			z-index: 99;
+			display: none;
+			backdrop-filter: blur(2px);
+		}
+
+		.sidebar-overlay.active {
+			display: block;
+		}
+
+		#locationSearch {
+			width: 100%;
+			padding: 12px 18px;
+			border: 1px solid var(--border-light);
+			border-radius: 40px;
+			font-size: 0.95rem;
+			margin-bottom: 16px;
+			background: white;
+			box-shadow: var(--shadow-sm);
+		}
+	</style>
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+	<!-- Overlay and sidebar (same structure) -->
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+	<div class="dashboard-container">
+		<aside class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<h3>Fuel Express Admin</h3>
+			</div>
+			<ul class="sidebar-menu">
+				<li><a href="/adashboard" class="active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+				</li>
+				<li><a href="/registerpump"><i class="fas fa-gas-pump"></i><span>Register Pump</span></a></li>
+				<li><a href="/mypumps"><i class="fas fa-map-marker-alt"></i><span>My Pumps</span></a></li>
+				<li><a href="/riders"><i class="fas fa-motorcycle"></i><span>Riders</span></a></li>
+				<li><a href="/allcustomers"><i class="fas fa-users"></i><span>Customers</span></a></li>
+				<li><a href="/allorders"><i class="fas fa-shopping-cart"></i><span>Orders</span></a></li>
+				<li><a href="/logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+			</ul>
+			<div class="sidebar-footer">
+				<p>Fuel Express &copy; 2023</p>
+				<p>v2.1.0</p>
+			</div>
+		</aside>
+
+		<main class="main-content" id="mainContent">
+			<!-- topbar -->
+			<div class="topbar">
+				<button class="toggle-sidebar" id="toggleSidebar"><i class="fas fa-bars"></i></button>
+				<div class="logo">
+					<div class="logo-icon"><i class="fas fa-gas-pump"></i></div>
+					<div>
+						<h1>Fuel Express</h1>
+						<div style="font-size:12px;color:#68788c;">Pump Registration</div>
+					</div>
+				</div>
+				<div class="user-info">
+					<div class="notifications" id="notifications"><i class="fas fa-bell"></i><span
+							class="notification-count">2</span></div>
+					<div class="user-avatar" id="userMenu"><i class="fa-solid fa-user"></i></div>
+					<div class="user-details"><span class="user-name" th:text="${LoginUserBean.loginname}">Admin</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-title">
+					<h2>Register new pump</h2>
+					<div class="page-subtitle">Fill details & drop a pin on map</div>
+				</div>
+				<div class="breadcrumb"><a href="#">Dashboard</a><i class="fas fa-chevron-right"></i><span>Pump
+						registration</span></div>
+			</div>
+
+			<!-- Stepper -->
+			<div class="form-stepper">
+				<div class="stepper-step active"><span class="stepper-circle">1</span><span
+						class="stepper-label">Basic</span></div>
+				<div class="stepper-step"><span class="stepper-circle">2</span><span
+						class="stepper-label">Location</span></div>
+				<div class="stepper-step"><span class="stepper-circle">3</span><span
+						class="stepper-label">Confirm</span></div>
+			</div>
+
+			<!-- Registration card -->
+			<div class="registration-section">
+				<div class="section-header">
+					<h3 class="section-title"><i class="fas fa-edit"></i> Pump details</h3>
+				</div>
+				<div class="form-container">
+					<!-- left: form -->
+					<div class="form-section">
+						<form id="registrationForm" th:action="@{/savepetrolpump}" th:object="${petrolPump}"
+							method="post">
+							<input type="hidden" id="latitude" th:field="*{latitude}" value="19.0760">
+							<input type="hidden" id="longitude" th:field="*{longitude}" value="72.8777">
+
+							<div class="form-group">
+								<label for="pumpName" class="required">Pump name</label>
+								<input type="text" id="pumpName" th:field="*{name}" placeholder="e.g. Green Fuel"
+									required>
+								<div class="form-tip"><i class="fas fa-lightbulb"></i> official name</div>
+								<div class="field-error" id="pumpNameError">enter valid name</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label for="ownerName" class="required">Owner</label>
+									<input type="text" id="ownerName" th:field="*{ownerName}" placeholder="full name"
+										required>
+									<div class="field-error" id="ownerNameError">required</div>
+								</div>
+								<div class="form-group">
+									<label for="contactNumber" class="required">Contact</label>
+									<input type="tel" id="contactNumber" th:field="*{contactNumber}"
+										placeholder="10 digits" required>
+									<div class="field-error" id="contactNumberError">valid 10-digit</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="email" class="required">Email</label>
+								<input type="email" id="email" th:field="*{email}" placeholder="name@example.com"
+									required>
+								<div class="field-error" id="emailError">valid email</div>
+							</div>
+							<div class="form-group">
+								<label for="address" class="required">Address</label>
+								<textarea id="address" th:field="*{address}" rows="2"
+									placeholder="Street, landmark, etc." required></textarea>
+								<div class="field-error" id="addressError">min 10 characters</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label for="city" class="required">City</label>
+									<input type="text" id="city" th:field="*{city}" placeholder="city" required>
+									<div class="field-error" id="cityError">required</div>
+								</div>
+								<div class="form-group">
+									<label for="state" class="required">State</label>
+									<select id="state" th:field="*{state}" required>
+										<option value="">Select</option>
+										<option value="Maharashtra">Odisha</option>
+										<option value="Delhi">Delhi</option>
+										<option value="Karnataka">Karnataka</option>
+									</select>
+									<div class="field-error" id="stateError">select state</div>
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+									<label for="pincode" class="required">Pincode</label>
+									<input type="text" id="pincode" th:field="*{pincode}" placeholder="6 digits"
+										required>
+									<div class="field-error" id="pincodeError">valid pincode</div>
+								</div>
+
+								<!-- Fuel Types as Checkboxes (replaces multi-select) -->
+								<div class="form-group">
+									<label class="required">Fuel Types Available</label>
+									<div class="checkbox-group">
+										<label>
+											<input type="checkbox" name="fuelTypes" value="Petrol"
+												th:field="*{fuelTypes}"> Petrol
+										</label>
+										<label>
+											<input type="checkbox" name="fuelTypes" value="Diesel"
+												th:field="*{fuelTypes}"> Diesel
+										</label>
+										<label>
+											<input type="checkbox" name="fuelTypes" value="CNG" th:field="*{fuelTypes}">
+											CNG
+										</label>
+										<label>
+											<input type="checkbox" name="fuelTypes" value="Electric Charging"
+												th:field="*{fuelTypes}"> Electric
+										</label>
+										<label>
+											<input type="checkbox" name="fuelTypes" value="Premium Petrol"
+												th:field="*{fuelTypes}"> Premium Petrol
+										</label>
+										<label>
+											<input type="checkbox" name="fuelTypes" value="Premium Diesel"
+												th:field="*{fuelTypes}"> Premium Diesel
+										</label>
+									</div>
+									<div class="form-tip"><i class="fas fa-lightbulb"></i> Check all that apply</div>
+									<div class="field-error" id="fuelTypesError">Please select at least one fuel type
+									</div>
+								</div>
+							</div>
+
+							<div class="form-notice">
+								<i class="fas fa-info-circle"></i> <strong>Pin on map:</strong> click map to drop marker
+								– coordinates auto‑filled.
+							</div>
+							<div class="button-group">
+								<button type="submit" class="btn btn-submit"><i class="fas fa-paper-plane"></i> Register
+									pump</button>
+								<button type="reset" class="btn btn-reset" id="resetBtn"><i class="fas fa-redo"></i>
+									Reset</button>
+								<a href="#" class="btn btn-back"><i class="fas fa-arrow-left"></i> Dashboard</a>
+							</div>
+						</form>
+					</div>
+
+					<!-- right: map with search -->
+					<div class="map-section">
+						<div class="section-header">
+							<h3 class="section-title"><i class="fas fa-map-marked-alt"></i> Set location</h3>
+						</div>
+						<input type="text" id="locationSearch" placeholder="Search area or landmark" />
+						<div id="map-container">
+							<div id="map"></div>
+							<div
+								style="position:absolute; top:10px; right:10px; background:white; padding:4px 10px; border-radius:30px; font-size:0.8rem; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+								<i class="fas fa-crosshairs"></i> click map
+							</div>
+						</div>
+						<div class="map-instructions"><i class="fas fa-info-circle"></i> Click anywhere on map to place
+							marker. Drag to adjust.</div>
+						<div class="coordinates-display">
+							<div class="coordinate-box">
+								<div class="coordinate-label">Latitude</div>
+								<div class="coordinate-value" id="latDisplay">19.0760</div>
+							</div>
+							<div class="coordinate-box">
+								<div class="coordinate-label">Longitude</div>
+								<div class="coordinate-value" id="lngDisplay">72.8777</div>
+							</div>
+						</div>
+						<div
+							style="background:#f1f5f9; padding:14px; border-radius:16px; border-left:4px solid #8f9bb3;">
+							<i class="fas fa-tips"></i> Place marker at pump entrance for best accuracy.
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- footer -->
+			<div class="footer">Fuel Express © 2023 – support@fulexpress.com | 1800-123-4567</div>
+		</main>
+	</div>
+
+	<script>
+		// ---- JavaScript (identical functionality, plus fuel type validation) ----
+
+		// Google Places Autocomplete
+		const input = document.getElementById("locationSearch");
+		const autocomplete = new google.maps.places.Autocomplete(input, {types: ["geocode"], componentRestrictions: {country: "in"}});
+		autocomplete.addListener("place_changed", function () {
+			const place = autocomplete.getPlace();
+			if (!place.geometry) {alert("No details available for this location"); return;}
+			const lat = place.geometry.location.lat(); const lng = place.geometry.location.lng();
+			map.setView([lat, lng], 16);
+			if (marker) {marker.setLatLng([lat, lng]);} else {marker = L.marker([lat, lng], {draggable: true}).addTo(map);}
+			updateCoordinates(lat, lng);
+			if (place.formatted_address) {document.getElementById("address").value = place.formatted_address;}
+			place.address_components.forEach(component => {
+				if (component.types.includes("locality")) {document.getElementById("city").value = component.long_name;}
+				if (component.types.includes("administrative_area_level_1")) {document.getElementById("state").value = component.long_name;}
+			});
+		});
+
+		// Map initialization
+		const defaultLat = 20.288464, defaultLng = 85.813135;
+		let map = L.map('map').setView([defaultLat, defaultLng], 13);
+		let marker = null;
+		L.gridLayer.googleMutant({type: 'roadmap'}).addTo(map);
+		L.control.scale().addTo(map);
+		marker = L.marker([defaultLat, defaultLng], {draggable: true, title: 'Drag me'}).addTo(map);
+
+		function updateCoordinates(lat, lng) {
+			document.getElementById('latitude').value = lat;
+			document.getElementById('longitude').value = lng;
+			document.getElementById('latDisplay').textContent = lat.toFixed(6);
+			document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+			updateStepper(2);
+		}
+
+		map.on('click', function (e) {
+			const {lat, lng} = e.latlng;
+			if (marker) marker.setLatLng([lat, lng]); else marker = L.marker([lat, lng], {draggable: true}).addTo(map);
+			updateCoordinates(lat, lng);
+			map.setView([lat, lng], 15);
+			marker.bindPopup("Pump location<br>Lat: " + lat.toFixed(6) + "<br>Lng: " + lng.toFixed(6)).openPopup();
+		});
+
+		marker.on('dragend', function (e) {
+			const {lat, lng} = e.target.getLatLng();
+			updateCoordinates(lat, lng);
+		});
+
+		// Reset button
+		document.getElementById('resetBtn').addEventListener('click', function () {
+			marker.setLatLng([defaultLat, defaultLng]);
+			map.setView([defaultLat, defaultLng], 13);
+			updateCoordinates(defaultLat, defaultLng);
+			// Hide all field errors
+			document.querySelectorAll('.field-error').forEach(e => e.style.display = 'none');
+			document.querySelectorAll('.error').forEach(f => f.classList.remove('error'));
+			updateStepper(1);
+			// Note: form reset (type="reset") will also clear checkboxes
+		});
+
+		// Simulate city fill on map click (demo)
+		map.on('click', function (e) {
+			if (!document.getElementById('city').value) {
+				const cities = ['Odisha', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad'];
+				document.getElementById('city').value = cities[Math.floor(Math.random() * cities.length)];
+			}
+		});
+
+		// Sidebar toggle
+		const toggleSidebar = document.getElementById('toggleSidebar');
+		const sidebar = document.getElementById('sidebar');
+		const mainContent = document.getElementById('mainContent');
+		const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+		toggleSidebar.addEventListener('click', function (e) {
+			e.stopPropagation();
+			sidebar.classList.toggle('active');
+			sidebarOverlay.classList.toggle('active');
+			mainContent.classList.toggle('expanded');
+		});
+
+		sidebarOverlay.addEventListener('click', function () {
+			sidebar.classList.remove('active');
+			sidebarOverlay.classList.remove('active');
+			mainContent.classList.remove('expanded');
+		});
+
+		document.addEventListener('click', function (e) {
+			if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggleSidebar.contains(e.target)) {
+				sidebar.classList.remove('active');
+				sidebarOverlay.classList.remove('active');
+				mainContent.classList.remove('expanded');
+			}
+		});
+
+		window.addEventListener('resize', function () {
+			if (window.innerWidth > 768) {
+				sidebar.classList.remove('active');
+				sidebarOverlay.classList.remove('active');
+				mainContent.classList.remove('expanded');
+			}
+		});
+
+		// Notifications
+		document.getElementById('notifications').addEventListener('click', function () {
+			alert('You have 2 notifications:\n• New pump registration request (10 mins ago)\n• Payment verification completed (2 hours ago)');
+		});
+
+		// User menu
+		document.getElementById('userMenu').addEventListener('click', function () {
+			const choice = prompt('User Options:\n1. Profile Settings\n2. Account Details\n3. Change Password\n4. Logout');
+			if (choice === '4' && confirm('Logout?')) alert('Logging out...');
+		});
+
+		// Stepper update
+		function updateStepper(step) {
+			document.querySelectorAll('.stepper-step').forEach((s, i) => {
+				if (i < step) s.classList.add('active');
+				else s.classList.remove('active');
+			});
+		}
+		updateStepper(1);
+
+		// Additional style for notifications (kept)
+		const style = document.createElement('style');
+		style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOut { from { transform: translateX(100%); opacity: 1; } to { transform: translateX(0); opacity: 0; } }`;
+		document.head.appendChild(style);
+
+		// ----- FUEL TYPE VALIDATION (at least one checkbox) -----
+		const form = document.getElementById('registrationForm');
+		form.addEventListener('submit', function (e) {
+			const fuelCheckboxes = document.querySelectorAll('input[name="fuelTypes"]');
+			const atLeastOneChecked = Array.from(fuelCheckboxes).some(cb => cb.checked);
+			const fuelError = document.getElementById('fuelTypesError');
+
+			if (!atLeastOneChecked) {
+				e.preventDefault(); // stop submission
+				fuelError.style.display = 'block';
+				// Optionally highlight the group
+			} else {
+				fuelError.style.display = 'none';
+			}
+		});
+
+		// Also clear fuel error when user checks a box (optional)
+		document.querySelectorAll('input[name="fuelTypes"]').forEach(cb => {
+			cb.addEventListener('change', function () {
+				const anyChecked = Array.from(document.querySelectorAll('input[name="fuelTypes"]')).some(c => c.checked);
+				if (anyChecked) {
+					document.getElementById('fuelTypesError').style.display = 'none';
+				}
+			});
+		});
+
+		// Minor: keep focus effect (optional)
+		document.querySelectorAll('input, select, textarea').forEach(i => {
+			i.addEventListener('focus', function () {this.style.backgroundColor = '#ffffff';});
+			i.addEventListener('blur', function () {this.style.backgroundColor = '';});
+		});
+	</script>
+</body>
+
+</html>

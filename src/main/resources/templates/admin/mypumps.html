@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Fuel Express - Dashboard</title>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+
+		:root {
+			--primary: #2c3e50;
+			--secondary: #3498db;
+			--accent: #2ecc71;
+			--danger: #e74c3c;
+			--warning: #f39c12;
+			--light: #f8f9fa;
+			--dark: #343a40;
+			--sidebar-width: 250px;
+			--topbar-height: 70px;
+			--border-radius: 8px;
+		}
+
+		body {
+			background-color: #f5f7fa;
+			color: #333;
+			line-height: 1.6;
+			overflow-x: hidden;
+		}
+
+		.dashboard-container {
+			display: flex;
+			min-height: 100vh;
+			position: relative;
+		}
+
+		/* Sidebar Styles */
+		.sidebar {
+			width: var(--sidebar-width);
+			background-color: var(--primary);
+			color: white;
+			position: fixed;
+			height: 100vh;
+			padding-top: var(--topbar-height);
+			transition: all 0.3s ease;
+			z-index: 100;
+			box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+			left: 0;
+			transform: translateX(0);
+		}
+
+		.sidebar.collapsed {
+			transform: translateX(-100%);
+		}
+
+		.sidebar-header {
+			padding: 20px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			text-align: center;
+		}
+
+		.sidebar-header h3 {
+			font-size: 18px;
+			font-weight: 600;
+			color: #ecf0f1;
+		}
+
+		.sidebar-menu {
+			list-style: none;
+			padding: 20px 0;
+		}
+
+		.sidebar-menu li {
+			margin-bottom: 5px;
+		}
+
+		.sidebar-menu a {
+			display: flex;
+			align-items: center;
+			padding: 15px 20px;
+			color: #bdc3c7;
+			text-decoration: none;
+			transition: all 0.3s;
+			border-left: 4px solid transparent;
+		}
+
+		.sidebar-menu a:hover {
+			background-color: rgba(255, 255, 255, 0.05);
+			color: white;
+			border-left-color: var(--secondary);
+		}
+
+		.sidebar-menu a.active {
+			background-color: rgba(52, 152, 219, 0.1);
+			color: white;
+			border-left-color: var(--secondary);
+		}
+
+		.sidebar-menu i {
+			width: 30px;
+			font-size: 18px;
+		}
+
+		.sidebar-footer {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			padding: 20px;
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+			text-align: center;
+			font-size: 14px;
+			color: #95a5a6;
+		}
+
+		/* Topbar Styles */
+		.topbar {
+			height: var(--topbar-height);
+			background-color: white;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 101;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 20px;
+		}
+
+		.toggle-sidebar {
+			background: none;
+			border: none;
+			font-size: 20px;
+			color: var(--primary);
+			cursor: pointer;
+			padding: 10px;
+			border-radius: 50%;
+			transition: background-color 0.3s;
+			display: none;
+		}
+
+		.toggle-sidebar:hover {
+			background-color: #f1f1f1;
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.logo h1 {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--primary);
+		}
+
+		.logo-icon {
+			font-size: 28px;
+			color: var(--secondary);
+		}
+
+		.user-info {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.user-avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--secondary), var(--primary));
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-weight: bold;
+			cursor: pointer;
+			transition: transform 0.3s;
+		}
+
+		.user-avatar:hover {
+			transform: scale(1.05);
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(1);
+			}
+
+			50% {
+				transform: scale(1.1);
+			}
+
+			100% {
+				transform: scale(1);
+			}
+		}
+
+		/* Main Content Styles */
+		.main-content {
+			flex: 1;
+			margin-left: var(--sidebar-width);
+			margin-top: var(--topbar-height);
+			padding: 30px;
+			transition: all 0.3s ease;
+			min-height: calc(100vh - var(--topbar-height));
+			background-color: #f8fafc;
+		}
+
+		.main-content.expanded {
+			margin-left: 0;
+		}
+
+		.page-header {
+			margin-bottom: 30px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 15px;
+		}
+
+		.page-title h2 {
+			font-size: 28px;
+			color: var(--primary);
+			margin-bottom: 5px;
+			background: linear-gradient(135deg, var(--primary), var(--secondary));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		.page-subtitle {
+			color: #7f8c8d;
+			font-size: 16px;
+		}
+
+		.breadcrumb {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: #7f8c8d;
+			background: white;
+			padding: 8px 15px;
+			border-radius: var(--border-radius);
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+		}
+
+		.breadcrumb a {
+			color: var(--secondary);
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		/* Dashboard Cards */
+		.dashboard-cards {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 25px;
+			margin-bottom: 40px;
+		}
+
+		.card {
+			background-color: white;
+			border-radius: var(--border-radius);
+			padding: 25px;
+			box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+			transition: all 0.3s ease;
+			border: 1px solid rgba(0, 0, 0, 0.05);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		}
+
+		.card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--secondary), var(--accent));
+		}
+
+		.card-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 15px;
+		}
+
+		.card-title {
+			font-size: 18px;
+			color: var(--primary);
+			font-weight: 600;
+		}
+
+		.card-icon {
+			width: 50px;
+			height: 50px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+			background: rgba(52, 152, 219, 0.1);
+			color: var(--secondary);
+		}
+
+		.card-value {
+			font-size: 32px;
+			font-weight: 800;
+			color: var(--dark);
+			margin-bottom: 10px;
+			font-family: 'Arial', sans-serif;
+		}
+
+		.card-footer {
+			font-size: 14px;
+			color: #7f8c8d;
+			display: flex;
+			align-items: center;
+			gap: 5px;
+		}
+
+		.card-footer i {
+			color: var(--accent);
+		}
+
+		/* Quick Actions */
+		.quick-actions {
+			background-color: white;
+			border-radius: var(--border-radius);
+			box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+			padding: 30px;
+			margin-bottom: 30px;
+			border: 1px solid rgba(0, 0, 0, 0.05);
+		}
+
+		.section-header {
+			margin-bottom: 25px;
+			padding-bottom: 15px;
+			border-bottom: 2px solid #f1f1f1;
+		}
+
+		.section-title {
+			font-size: 22px;
+			color: var(--primary);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.section-title i {
+			color: var(--secondary);
+		}
+
+		.action-buttons {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 20px;
+		}
+
+		.action-btn {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 25px 20px;
+			background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+			border-radius: var(--border-radius);
+			text-decoration: none;
+			color: var(--primary);
+			transition: all 0.3s ease;
+			border: 2px solid transparent;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.action-btn:hover {
+			background: linear-gradient(135deg, white, #f8f9fa);
+			border-color: var(--secondary);
+			transform: translateY(-5px);
+			box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+		}
+
+		.action-icon {
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 28px;
+			margin-bottom: 15px;
+			background: rgba(52, 152, 219, 0.1);
+			color: var(--secondary);
+			transition: all 0.3s;
+		}
+
+		.action-btn:hover .action-icon {
+			background: var(--secondary);
+			color: white;
+			transform: rotate(10deg) scale(1.1);
+		}
+
+		.action-text {
+			font-size: 16px;
+			font-weight: 600;
+			text-align: center;
+		}
+
+		/* Recent Activity */
+		.recent-activity {
+			background-color: white;
+			border-radius: var(--border-radius);
+			box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+			padding: 30px;
+			border: 1px solid rgba(0, 0, 0, 0.05);
+		}
+
+		.activity-list {
+			list-style: none;
+		}
+
+		.activity-item {
+			display: flex;
+			align-items: center;
+			padding: 15px;
+			border-bottom: 1px solid #f1f1f1;
+			transition: background-color 0.3s;
+			border-radius: 5px;
+		}
+
+		.activity-item:hover {
+			background-color: #f8f9fa;
+		}
+
+		.activity-item:last-child {
+			border-bottom: none;
+		}
+
+		.activity-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-right: 15px;
+			font-size: 18px;
+			flex-shrink: 0;
+		}
+
+		.activity-content {
+			flex: 1;
+		}
+
+		.activity-title {
+			font-weight: 600;
+			margin-bottom: 3px;
+			color: var(--primary);
+		}
+
+		.activity-time {
+			font-size: 14px;
+			color: #7f8c8d;
+		}
+
+		/* Footer */
+		.footer {
+			text-align: center;
+			padding: 20px;
+			color: #7f8c8d;
+			font-size: 14px;
+			border-top: 1px solid #eee;
+			margin-top: 30px;
+			background: white;
+			border-radius: var(--border-radius);
+			box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			.sidebar {
+				transform: translateX(-100%);
+				z-index: 1000;
+			}
+
+			.sidebar.active {
+				transform: translateX(0);
+			}
+
+			.main-content {
+				margin-left: 0;
+				padding: 20px;
+			}
+
+			.toggle-sidebar {
+				display: block;
+			}
+
+			.page-header {
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 15px;
+			}
+
+			.dashboard-cards {
+				grid-template-columns: 1fr;
+				gap: 15px;
+			}
+
+			.action-buttons {
+				grid-template-columns: 1fr;
+			}
+
+			.user-details {
+				display: none;
+			}
+		}
+
+		/* Overlay for mobile sidebar */
+		.sidebar-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0, 0, 0, 0.5);
+			z-index: 999;
+			display: none;
+			backdrop-filter: blur(3px);
+		}
+
+		.sidebar-overlay.active {
+			display: block;
+		}
+
+		/* Status Indicators */
+		.status-indicator {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font-size: 12px;
+			padding: 3px 8px;
+			border-radius: 20px;
+			font-weight: 600;
+		}
+
+		.status-success {
+			background-color: rgba(46, 204, 113, 0.1);
+			color: #27ae60;
+		}
+
+		.status-warning {
+			background-color: rgba(243, 156, 18, 0.1);
+			color: #d35400;
+		}
+
+		.status-danger {
+			background-color: rgba(231, 76, 60, 0.1);
+			color: #c0392b;
+		}
+
+		/* Stats Grid */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 15px;
+			margin-top: 10px;
+		}
+
+		.stat-item {
+			background: white;
+			padding: 15px;
+			border-radius: var(--border-radius);
+			text-align: center;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+		}
+
+		.stat-value {
+			font-size: 20px;
+			font-weight: bold;
+			color: var(--primary);
+		}
+
+		.stat-label {
+			font-size: 12px;
+			color: #7f8c8d;
+			margin-top: 5px;
+		}
+	</style>
+	<!-- Font Awesome for icons -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+	<!-- Sidebar Overlay for Mobile -->
+	<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+	<!-- Dashboard Container -->
+	<div class="dashboard-container">
+		<!-- Sidebar -->
+		<aside class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<h3>Fuel Express Admin</h3>
+			</div>
+
+			<ul class="sidebar-menu">
+				<li>
+					<a href="/adashboard" class="active">
+						<i class="fas fa-tachometer-alt"></i>
+						<span>Dashboard</span>
+					</a>
+				</li>
+				<li>
+					<a href="/registerpump">
+						<i class="fas fa-gas-pump"></i>
+						<span>Register Pump</span>
+					</a>
+				</li>
+				<li>
+					<a href="/mypumps">
+						<i class="fas fa-map-marker-alt"></i>
+						<span>My Pumps</span>
+					</a>
+				</li>
+				<li>
+					<a href="/riders">
+						<i class="fas fa-motorcycle"></i>
+						<span>Riders</span>
+					</a>
+				</li>
+
+				<li>
+					<a href="/allcustomers">
+						<i class="fas fa-users"></i>
+						<span>Customers</span>
+					</a>
+				</li>
+
+				<li>
+					<a href="/allorders"> <!-- Replace /orders with your actual orders URL -->
+						<i class="fas fa-shopping-cart"></i> <!-- Optional: use a cart icon instead of a gear -->
+						<span>Orders</span>
+					</a>
+				</li>
+				<li>
+					<a href="/logout">
+						<i class="fas fa-sign-out-alt"></i>
+						<span>Logout</span>
+					</a>
+				</li>
+			</ul>
+
+			<div class="sidebar-footer">
+				<p>Fuel Express &copy; 2023</p>
+				<p>v2.1.0</p>
+			</div>
+		</aside>
+
+		<!-- Main Content -->
+		<main class="main-content" id="mainContent">
+			<!-- Topbar -->
+			<div class="topbar">
+				<button class="toggle-sidebar" id="toggleSidebar">
+					<i class="fas fa-bars"></i>
+				</button>
+
+				<div class="logo">
+					<div class="logo-icon">
+						<i class="fas fa-gas-pump"></i>
+					</div>
+					<div>
+						<h1>Fuel Express</h1>
+						<div style="font-size: 12px; color: #7f8c8d; margin-top: -3px;">Dashboard</div>
+					</div>
+				</div>
+
+				<div class="user-info">
+					<div class="user-avatar" id="userMenu">
+						<i class="fa-solid fa-user"></i>
+					</div>
+
+					<div class="user-details">
+						<div class="user-name" th:text="${LoginUserBean.loginname}"></div>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Pumps Table Section -->
+			<div class="recent-activity">
+				<div class="section-header">
+					<h3 class="section-title">
+						<i class="fas fa-gas-pump"></i> My Petrol Pumps
+					</h3>
+				</div>
+
+				<div style="overflow-x:auto;">
+					<table id="pumpsTable" class="display" style="width:100%">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Pump Name</th>
+								<th>Owner</th>
+								<th>Contact</th>
+								<th>City</th>
+								<th>Fuel Types</th>
+								<th>Location</th>
+								<th>Created</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="pump, stat : ${pumps}">
+								<td th:text="${stat.count}"></td>
+								<td th:text="${pump.name}"></td>
+								<td th:text="${pump.ownerName}"></td>
+								<td th:text="${pump.contactNumber}"></td>
+								<td th:text="${pump.city}"></td>
+								<td th:text="${pump.fuelTypes}"></td>
+								<td>
+									<a th:href="'https://www.google.com/maps?q=' + ${pump.latitude} + ',' + ${pump.longitude}"
+										target="_blank">
+										View Map
+									</a>
+								</td>
+								<td th:text="${#temporals.format(pump.createdAt, 'dd MMM yyyy hh:mm a')}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+
+		</main>
+	</div>
+
+	<script>
+
+
+
+		$(document).ready(function () {
+			$('#pumpsTable').DataTable({
+
+			});
+		});
+
+
+
+
+		// Sidebar toggle functionality - Fixed
+		const toggleSidebar = document.getElementById('toggleSidebar');
+		const sidebar = document.getElementById('sidebar');
+		const mainContent = document.getElementById('mainContent');
+		const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+		toggleSidebar.addEventListener('click', function (e) {
+			e.stopPropagation();
+			sidebar.classList.toggle('active');
+			sidebarOverlay.classList.toggle('active');
+			mainContent.classList.toggle('expanded');
+		});
+
+		sidebarOverlay.addEventListener('click', function () {
+			sidebar.classList.remove('active');
+			sidebarOverlay.classList.remove('active');
+			mainContent.classList.remove('expanded');
+		});
+
+		// Close sidebar when clicking outside on mobile
+		document.addEventListener('click', function (e) {
+			if (window.innerWidth <= 768) {
+				if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target)) {
+					sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active');
+					mainContent.classList.remove('expanded');
+				}
+			}
+		}); // Handle window resize window.addEventListener('resize',
+
+		// Notifications click
+		document.getElementById('notifications').addEventListener('click', function () {
+			const notifications = [
+				{type: 'info', message: 'New pump registration request received', time: '10 mins ago'},
+				{type: 'success', message: 'Payment verification completed for Green Fuel', time: '2 hours ago'},
+				{type: 'warning', message: 'Low inventory alert for Pump #2', time: '5 hours ago'}
+			];
+
+			alert('You have 3 notifications:\n\n' +
+				notifications.map(n => `• ${n.message} (${n.time})`).join('\n'));
+		});
+
+		// User menu click
+		document.getElementById('userMenu').addEventListener('click', function () {
+			const options = ['Profile Settings', 'Account Details', 'Change Password', 'Logout'];
+			const choice = prompt('User Options:\n' + options.map((opt, i) => `${i + 1}. ${opt}`).join('\n'));
+
+			if (choice === '4') {
+				if (confirm('Are you sure you want to logout?')) {
+					alert('Logging out...');
+					// In real app, redirect to logout page
+				}
+			}
+		});
+
+		// Update current time
+		function updateCurrentTime() {
+			const now = new Date();
+			const options = {
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: true
+			};
+			const timeString = now.toLocaleTimeString('en-US', options);
+			document.getElementById('currentTime').textContent = timeString;
+		}
+
+		// Update time every second
+		updateCurrentTime();
+		setInterval(updateCurrentTime, 1000);
+
+		// Simulate real-time updates for dashboard cards
+		function simulateRealTimeUpdates() {
+			const cards = document.querySelectorAll('.card');
+
+			// Randomly update card values (simulating real-time data)
+			setInterval(() => {
+				const randomCardIndex = Math.floor(Math.random() * cards.length);
+				const cardValue = cards[randomCardIndex].querySelector('.card-value');
+
+				if (cardValue) {
+					const currentValue = parseInt(cardValue.textContent.replace(/[^0-9]/g, ''));
+					const change = Math.floor(Math.random() * 5) + 1;
+					const newValue = currentValue + change;
+
+					// Animate the change
+					cardValue.style.transform = 'scale(1.1)';
+					cardValue.style.color = '#2ecc71';
+
+					setTimeout(() => {
+						cardValue.style.transform = 'scale(1)';
+						cardValue.style.color = '';
+					}, 300);
+
+					// Update the value with currency symbol if needed
+					if (cardValue.textContent.includes('₹')) {
+						cardValue.textContent = '₹' + newValue.toLocaleString();
+					} else {
+						cardValue.textContent = newValue.toLocaleString();
+					}
+				}
+			}, 15000); // Update every 15 seconds
+		}
+
+		simulateRealTimeUpdates();
+
+		// Add hover effects to cards
+		document.querySelectorAll('.card').forEach(card => {
+			card.addEventListener('mouseenter', function () {
+				this.style.transform = 'translateY(-5px) scale(1.02)';
+			});
+
+			card.addEventListener('mouseleave', function () {
+				this.style.transform = 'translateY(0) scale(1)';
+			});
+		});
+	</script>
+</body>
+
+</html>

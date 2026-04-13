@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | FuelExpress</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #00c9ff;
+            --secondary: #0a2463;
+            --accent: #ff3e00;
+            --dark: #0a0e17;
+            --light: #f8f9fa;
+            --gradient: linear-gradient(135deg, #00c9ff 0%, #0a2463 100%);
+            --gradient-reverse: linear-gradient(135deg, #0a2463 0%, #00c9ff 100%);
+            --shadow: 0 10px 30px rgba(0, 201, 255, 0.2);
+            --glow: 0 0 20px rgba(0, 201, 255, 0.7);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 36, 99, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 201, 255, 0.3);
+            padding: 1.2rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-right: 10px;
+            text-shadow: var(--glow);
+        }
+        
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo-text span {
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+        
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-login {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 201, 255, 0.4);
+        }
+        
+        .btn-login:hover {
+            background: var(--gradient-reverse);
+            box-shadow: 0 8px 20px rgba(0, 201, 255, 0.6);
+            transform: translateY(-3px);
+        }
+        
+        .btn-signup {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-signup:hover {
+            background: rgba(0, 201, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 201, 255, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* Login Container */
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 2rem 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1516826957135-700dedea698c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') center/cover no-repeat;
+            z-index: -2;
+        }
+        
+        .login-bg:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.95) 0%, rgba(10, 36, 99, 0.9) 100%);
+        }
+        
+        .login-box {
+            background: rgba(26, 34, 56, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(0, 201, 255, 0.2);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-box:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 201, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .login-box:hover:before {
+            left: 100%;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .login-title {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #00c9ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 201, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 201, 255, 0.1);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+            accent-color: var(--primary);
+        }
+        
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .forgot-password:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-submit:hover {
+            background: var(--gradient-reverse);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 201, 255, 0.4);
+        }
+        
+        .login-divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .login-divider:before, .login-divider:after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-social {
+            flex: 1;
+            padding: 0.9rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-social:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .btn-social i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .btn-google i {
+            color: #ea4335;
+        }
+        
+        .btn-facebook i {
+            color: #3b5998;
+        }
+        
+        .login-footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+        
+        .login-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Error/Success Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-error {
+            background: rgba(255, 59, 0, 0.1);
+            border-left: 4px solid var(--accent);
+            color: #ffcccb;
+        }
+        
+        .alert-success {
+            background: rgba(0, 201, 255, 0.1);
+            border-left: 4px solid var(--primary);
+            color: #90ee90;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 2rem 2rem;
+            background: rgba(10, 14, 23, 0.98);
+            border-top: 1px solid rgba(0, 201, 255, 0.2);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+        
+        /* Animation for form */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-box {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 2rem;
+            }
+            
+            .login-title {
+                font-size: 2rem;
+            }
+            
+            .social-login {
+                flex-direction: column;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 1.5rem;
+            }
+            
+            .login-title {
+                font-size: 1.8rem;
+            }
+            
+            .navbar-container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a th:href="@{/}" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="logo-text">FUEL<span>EXPRESS</span></div>
+            </a>
+
+            <!-- Authentication Buttons -->
+            <div class="auth-buttons">
+                <a th:href="@{/index}" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Back To Home
+                </a>
+                <!--<a th:href="@{/signup}" class="btn btn-signup">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>-->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-bg"></div>
+        <div class="login-box">
+            <div class="login-header">
+                <h2 class="login-title">WELCOME BACK</h2>
+                <p class="login-subtitle">Sign in to access your FuelExpress dashboard</p>
+            </div>
+            
+            <!-- Display error message if login fails -->
+            <div th:if="${param.error}" class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Invalid email or password. Please try again.</span>
+            </div>
+            
+            <!-- Display success message if logged out -->
+            <div th:if="${param.logout}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span>You have been logged out successfully.</span>
+            </div>
+            
+            <!-- Login Form -->
+            <form th:action="@{/loginreq}" method="post" id="loginForm">
+				 <input type="hidden" name="userType" value="ADMIN">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-sign-in-alt"></i>Login
+                </button>
+                
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember-me">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a th:href="@{/forgot-password}" class="forgot-password">Forgot Password?</a>
+                </div>
+            </form>
+            
+            <div class="login-divider">
+                <span>OR CONTINUE WITH</span>
+            </div>
+            
+            <div class="social-login">
+                <a href="#" class="btn-social btn-google">
+                    <i class="fab fa-google"></i> Google
+                </a>
+                <a href="#" class="btn-social btn-facebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        &copy; 2023 FuelExpress. All rights reserved. | 
+        <a th:href="@{/privacy}" style="color: var(--primary); text-decoration: none;">Privacy Policy</a> | 
+        <a th:href="@{/terms}" style="color: var(--primary); text-decoration: none;">Terms of Service</a>
+    </footer>
+    
+    <script>
+        // Form validation
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                e.preventDefault();
+                showAlert('Please fill in all required fields.', 'error');
+                return false;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                showAlert('Please enter a valid email address.', 'error');
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // Show custom alert
+        function showAlert(message, type) {
+            // Remove existing custom alerts
+            const existingAlert = document.querySelector('.custom-alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} custom-alert`;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '100px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '10000';
+            alertDiv.style.maxWidth = '350px';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        // Show/hide password functionality
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.createElement('span');
+        togglePassword.innerHTML = '<i class="fas fa-eye"></i>';
+        togglePassword.style.position = 'absolute';
+        togglePassword.style.right = '1rem';
+        togglePassword.style.top = '50%';
+        togglePassword.style.transform = 'translateY(-50%)';
+        togglePassword.style.cursor = 'pointer';
+        togglePassword.style.color = 'var(--primary)';
+        
+        if (passwordInput) {
+            passwordInput.parentNode.style.position = 'relative';
+            passwordInput.parentNode.appendChild(togglePassword);
+            
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            });
+        }
+        
+        // Demo login credentials popup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we should show demo credentials
+            const showDemo = localStorage.getItem('showDemoCredentials') !== 'false';
+            
+            if (showDemo) {
+                setTimeout(() => {
+                    const demoDiv = document.createElement('div');
+                    demoDiv.className = 'alert alert-success custom-alert';
+                    demoDiv.style.position = 'fixed';
+                    demoDiv.style.bottom = '20px';
+                    demoDiv.style.right = '20px';
+                    demoDiv.style.zIndex = '10000';
+                    demoDiv.style.maxWidth = '350px';
+                    demoDiv.style.backgroundColor = 'rgba(10, 36, 99, 0.9)';
+                    demoDiv.style.borderLeft = '4px solid var(--primary)';
+                    demoDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: var(--primary);">Demo Credentials</h4>
+                                <p style="margin: 0; font-size: 0.9rem;">Try these demo accounts:</p>
+                                <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 0.85rem;">
+                                    <li><strong>Email:</strong> demo@fuelexpress.com</li>
+                                    <li><strong>Password:</strong> demo123</li>
+                                </ul>
+                                <p style="margin: 10px 0 0 0; font-size: 0.8rem; color: rgba(255,255,255,0.7);">
+                                    <i class="fas fa-info-circle"></i> This is a demo. In production, use real credentials.
+                                </p>
+                            </div>
+                            <button id="closeDemo" style="background: none; border: none; color: var(--primary); cursor: pointer; margin-left: 10px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(demoDiv);
+                    
+                    // Close button functionality
+                    document.getElementById('closeDemo').addEventListener('click', function() {
+                        demoDiv.remove();
+                        localStorage.setItem('showDemoCredentials', 'false');
+                    });
+                    
+                    // Auto-fill demo credentials on click
+                    demoDiv.addEventListener('click', function(e) {
+                        if (e.target.closest('li')) {
+                            document.getElementById('email').value = 'demo@fuelexpress.com';
+                            document.getElementById('password').value = 'demo123';
+                            demoDiv.remove();
+                            localStorage.setItem('showDemoCredentials', 'false');
+                            
+                            // Show success message
+                            showAlert('Demo credentials filled! Click SIGN IN to continue.', 'success');
+                        }
+                    });
+                }, 1000);
+            }
+        });
+        
+        // Add floating particles effect
+        function createParticles() {
+            const container = document.querySelector('.login-container');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = 'rgba(0, 201, 255, 0.5)';
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                particle.style.zIndex = '-1';
+                container.appendChild(particle);
+                
+                // Animate particle
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            let x = parseFloat(particle.style.left);
+            let y = parseFloat(particle.style.top);
+            let xSpeed = (Math.random() - 0.5) * 0.3;
+            let ySpeed = (Math.random() - 0.5) * 0.3;
+            
+            function move() {
+                x += xSpeed;
+                y += ySpeed;
+                
+                if (x < 0 || x > 100) xSpeed *= -1;
+                if (y < 0 || y > 100) ySpeed *= -1;
+                
+                particle.style.left = x + 'vw';
+                particle.style.top = y + 'vh';
+                
+                requestAnimationFrame(move);
+            }
+            
+            move();
+        }
+        
+        window.addEventListener('load', createParticles);
+        
+        // Auto-fill for testing (remove in production)
+        function autoFillForTesting() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('test') === 'true') {
+                document.getElementById('email').value = 'test@example.com';
+                document.getElementById('password').value = 'test123';
+            }
+        }
+        
+        autoFillForTesting();
+    </script>
+</body>
+</html>
